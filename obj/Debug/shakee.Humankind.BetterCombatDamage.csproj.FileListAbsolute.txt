@@ -1,0 +1,7 @@
+C:\Users\szudr\Documents\Humankind Mod Tool\Projects\shakee.Humankind.BetterCombatDamage\obj\Debug\shakee.Humankind.BetterCombatDamage.csproj.AssemblyReference.cache
+C:\Users\szudr\Documents\Humankind Mod Tool\Projects\shakee.Humankind.BetterCombatDamage\obj\Debug\shakee.Humankind.BetterCombatDamage.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\szudr\Documents\Humankind Mod Tool\Projects\shakee.Humankind.BetterCombatDamage\obj\Debug\shakee.Humankind.BetterCombatDamage.AssemblyInfoInputs.cache
+C:\Users\szudr\Documents\Humankind Mod Tool\Projects\shakee.Humankind.BetterCombatDamage\obj\Debug\shakee.Humankind.BetterCombatDamage.AssemblyInfo.cs
+C:\Users\szudr\Documents\Humankind Mod Tool\Projects\shakee.Humankind.BetterCombatDamage\obj\Debug\shakee.Humankind.BetterCombatDamage.csproj.CoreCompileInputs.cache
+F:\SteamLibrary\steamapps\common\Humankind\BepInEx\plugins\shakee.Humankind.BetterCombatDamage.dll
+C:\Users\szudr\Documents\Humankind Mod Tool\Projects\shakee.Humankind.BetterCombatDamage\obj\Debug\shakee.Humankind.BetterCombatDamage.dll

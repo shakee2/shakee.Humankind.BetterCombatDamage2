@@ -1,0 +1,52 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETFramework,Version=v4.7.1": {}
+  },
+  "libraries": {},
+  "projectFileDependencyGroups": {
+    ".NETFramework,Version=v4.7.1": []
+  },
+  "packageFolders": {
+    "C:\\Users\\szudr\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\szudr\\Documents\\Humankind Mod Tool\\Projects\\shakee.Humankind.BetterCombatDamage\\shakee.Humankind.BetterCombatDamage.csproj",
+      "projectName": "shakee.Humankind.BetterCombatDamage",
+      "projectPath": "C:\\Users\\szudr\\Documents\\Humankind Mod Tool\\Projects\\shakee.Humankind.BetterCombatDamage\\shakee.Humankind.BetterCombatDamage.csproj",
+      "packagesPath": "C:\\Users\\szudr\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\szudr\\Documents\\Humankind Mod Tool\\Projects\\shakee.Humankind.BetterCombatDamage\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\szudr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net471"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net471": {
+          "targetAlias": "net471",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net471": {
+        "targetAlias": "net471",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.301\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}
