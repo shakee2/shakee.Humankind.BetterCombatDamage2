@@ -94,28 +94,32 @@ namespace HumankindModTool
                         new LocalizedNode{ Id= LocalizedNodeType.Terminal, TextValue=optionVal.Description}
                     },
                     TagCodes = new[] { 0 }
-                });
-                foreach (var opt in optionVal.States)
+                });   
+                if (optionVal.ControlType != UIControlType.TextField)  
                 {
-                    localizedStrings.Touch(new LocalizedStringElement()
+                    foreach (var opt in optionVal.States)
                     {
-                        LineId = $"%{gameOptionName}{opt.Value}Title",
-                        LocalizedStringElementFlag = LocalizedStringElementFlag.None,
-                        CompactedNodes = new LocalizedNode[] {
-                            new LocalizedNode{ Id= LocalizedNodeType.Terminal, TextValue=opt.Title }
-                        },
-                        TagCodes = new[] { 0 }
-                    });
-                    localizedStrings.Touch(new LocalizedStringElement()
-                    {
-                        LineId = $"%{gameOptionName}{opt.Value}Description",
-                        LocalizedStringElementFlag = LocalizedStringElementFlag.None,
-                        CompactedNodes = new LocalizedNode[] {
-                            new LocalizedNode{ Id= LocalizedNodeType.Terminal, TextValue=opt.Description }
-                        },
-                        TagCodes = new[] { 0 }
-                    });
-                }
+                        localizedStrings.Touch(new LocalizedStringElement()
+                        {
+                            LineId = $"%{gameOptionName}{opt.Value}Title",
+                            LocalizedStringElementFlag = LocalizedStringElementFlag.None,
+                            CompactedNodes = new LocalizedNode[] {
+                                new LocalizedNode{ Id= LocalizedNodeType.Terminal, TextValue=opt.Title }
+                            },
+                            TagCodes = new[] { 0 }
+                        });
+                        localizedStrings.Touch(new LocalizedStringElement()
+                        {
+                            LineId = $"%{gameOptionName}{opt.Value}Description",
+                            LocalizedStringElementFlag = LocalizedStringElementFlag.None,
+                            CompactedNodes = new LocalizedNode[] {
+                                new LocalizedNode{ Id= LocalizedNodeType.Terminal, TextValue=opt.Description }
+                            },
+                            TagCodes = new[] { 0 }
+                        });
+                    } 
+                }           
+
                 var optionGroupNameField = typeof(OptionsGroupUIMapper).GetField("optionsName", BindingFlags.Instance | BindingFlags.NonPublic);
                 var optionMapper = ScriptableObject.CreateInstance<OptionUIMapper>();
                 optionMapper.name = gameOptionName;
