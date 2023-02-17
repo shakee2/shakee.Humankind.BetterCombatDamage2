@@ -64,6 +64,29 @@ namespace shakee.Humankind.BetterCombatDamage
 
 			}
 		};
+        public static GameOptionInfo ReturnFire = new GameOptionInfo
+		{            
+			ControlType = 0,
+			Key = "GameOption_shakee_ReturnFire",
+			DefaultValue = "false",
+            editbleInGame = false,
+			Title = "[CombatStrength] Enable Return Fire",
+			Description = "Enabling this will allow ranged units to return fire if they get attacked by other ranged units.",
+			GroupKey = "GameOptionGroup_LobbyPaceOptions",
+			States = 
+			{
+                new GameOptionStateInfo{
+                    Title = "Disabled",
+                    Description = "Disabled -> Vanilla behavior.",
+                    Value = "false"
+                },
+                new GameOptionStateInfo{
+                    Title = "Enabled",
+                    Description = "Enabled.",
+                    Value = "true"
+                },
+			}
+		};
         #endregion
     }
 
