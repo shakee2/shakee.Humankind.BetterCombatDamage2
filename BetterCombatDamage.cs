@@ -11,7 +11,7 @@ using HumankindModTool;
 namespace shakee.Humankind.BetterCombatDamage
 {
 
-    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "1.2.1")]
+    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.0")]
     public class BetterCombatDamage : BaseUnityPlugin
     {
         const string PLUGIN_GUID = "shakee.Humankind.BetterCombatDamage";
@@ -32,7 +32,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			DefaultValue = "0",
             editbleInGame = false,
 			Title = "[CombatStrength] Combat Damage type",
-			Description = "Sets how damage is calculated by units, airstrike, bombardments and so on. Also offers additional options",
+			Description = "Sets how damage is calculated by units, airstrike, bombardments and so on. Also offers additional options.",
 			GroupKey = "GameOptionGroup_LobbyPaceOptions",
 			States = 
 			{
@@ -71,7 +71,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			DefaultValue = "false",
             editbleInGame = false,
 			Title = "[CombatStrength] Enable Return Fire",
-			Description = "Enabling this will allow ranged units to return fire if they get attacked by other ranged units.",
+			Description = "Enabling this will allow ranged units to return fire when they get attacked by other ranged units.",
 			GroupKey = "GameOptionGroup_LobbyPaceOptions",
 			States = 
 			{
