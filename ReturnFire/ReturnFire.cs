@@ -27,12 +27,13 @@ namespace shakee.Humankind.BetterCombatDamage
     [HarmonyPatch(typeof(Battle))]
     public class ReturnFire
     {
-        
+		public static bool doReturnFire = false;
+
         [HarmonyPrefix]
         [HarmonyPatch("Attack_UnitPart")]
         public static bool Attack_UnitPart(Battle __instance, ref BattleUnit attacker, ref BattleUnit target, int layer)
 		{
-			Console.WriteLine("Attack UnitPart");
+			
 			Battle.BattleVisionMap visibilityMap = __instance.VisibilityMap();			
 			BattleAttackFailureFlags flags = R.GetRangedAttackFailureFlags(__instance, target, target.GetBattlePosition2(layer).ToTileIndex2(), attacker.GetBattlePosition2(layer).ToTileIndex2(),true);
 
@@ -41,9 +42,10 @@ namespace shakee.Humankind.BetterCombatDamage
 			bool isVisible = visibilityMap.IsVisible2(attacker.GetBattlePosition2(layer).ToTileIndex2(),visibilityMap.GetEmpireBitsAt2(target.GetBattlePosition2(layer).ToTileIndex2()));
 			bool inRange = target.Unit.GetPropertyValue("AttackRange") >= target.GetBattlePosition2(layer).GetDistance2(attacker.GetBattlePosition2(layer));
 			bool targetable = isVisible && (BattleAttackFailureFlags.None == flags || target.Unit.IsIgnoreLineOfSight2());
-			bool cannotRetaliate = target.HasDescriptor(new StaticString("Tag_Unit_CannotReturnFire"));			
-			bool canReturnFire = inRange && targetable && bothRanged && !cannotRetaliate;
-			Console.WriteLine("Return Fire: " + canReturnFire.ToString() + " | LOS: " + targetable.ToString() + " | Visible: " + isVisible.ToString());		
+			bool cannotRetaliate = target.HasDescriptor2(new StaticString("Tag_Unit_CannotReturnFire"));			
+			bool canReturnFire = inRange && targetable && bothRanged;
+			
+			// Console.WriteLine("Return Fire: " + canReturnFire.ToString() + " | LOS: " + targetable.ToString() + " | Visible: " + isVisible.ToString());		
 
 			FixedPoint value = attacker.Unit.GetPropertyValue("HealthRatio");
 			FixedPoint value2 = target.Unit.GetPropertyValue("HealthRatio");
@@ -51,11 +53,16 @@ namespace shakee.Humankind.BetterCombatDamage
 			target.SetIsInvincible2(isInvincible: true, layer);
 
 			R.SendBattleEvent(__instance, BattleEventType.PreAttack, attacker, target, layer);
-			bool flag2 = target.CanRetaliate2(layer);
+			bool flag2 = !cannotRetaliate || target.CanRetaliate2(layer);
+			PresentationChoreographyController_Patch.rangedRetaliate = flag2 && (canReturnFire || !flagAttacker);
+
 			if (flag2 && (canReturnFire || !flagAttacker))
 			{
+				doReturnFire = true;
 				R.SendBattleEvent(__instance, BattleEventType.PreRetaliate, target, attacker, layer);
 			}
+			else
+				doReturnFire = false;
 			if (layer == 1)
 			{
 				__instance.ForecastCombatStrengthModifiers(attacker, target);
@@ -75,6 +82,8 @@ namespace shakee.Humankind.BetterCombatDamage
 			}
 			attacker.SetIsInvincible2(isInvincible: false, layer);
 			target.SetIsInvincible2(isInvincible: false, layer);
+			if (!attacker.IsInvincible)
+				Console.WriteLine("Attack UnitPart");
 			value -= attacker.Unit.GetPropertyValue("HealthRatio");
 			value2 -= target.Unit.GetPropertyValue("HealthRatio");
 			R.SendBattleEvent(__instance, BattleEventType.PostAttack, attacker, target, layer);
@@ -119,12 +128,13 @@ namespace shakee.Humankind.BetterCombatDamage
     public class PresentationChoreographyController_Patch
     {
 		public static bool rangedRetaliate = false;
-
+		public static bool secondTry = false;
+/* 
         [HarmonyPrefix]
         [HarmonyPatch("CreateActionsForRangedFightSequence")]
         public static bool CreateActionsForRangedFightSequence(ref PresentationChoreographyController __instance, ref FightSequence fightSequence)
 		{
-			rangedRetaliate = false;
+			
             Console.WriteLine("Pawn Ranged Combat");
             if (fightSequence.DefenderBattleUnit.IsRangedUnit() && fightSequence.AttackerBattleUnit.IsRangedUnit())
             {
@@ -148,16 +158,19 @@ namespace shakee.Humankind.BetterCombatDamage
                 // __instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Attacker);
                 // __instance.CreateAction<UnitActionTriggerAttack>(ref fightSequence, ActionScope.Defender);
                 __instance.CreateAction<UnitActionRangedFightSequence>(ref fightSequence, ActionScope.Attacker);
-                __instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
-				rangedRetaliate = true;
-                __instance.CreateAction<UnitActionRangedFightSequence>(ref fightSequence, ActionScope.Attacker);
-                //__instance.CreateAction<UnitActionMeleeFightSequence>(ref fightSequence, ActionScope.Attacker);
+                // __instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
+				// if (rangedRetaliate)
+				// {
+                // 	Console.WriteLine("Calling Defender Sequence");
+				// 	__instance.CreateAction<UnitActionRangedFightSequence>(ref fightSequence, ActionScope.Attacker);
+                // }
+				//__instance.CreateAction<UnitActionMeleeFightSequence>(ref fightSequence, ActionScope.Attacker);
 			    //__instance.CreateAction<UnitActionMeleePostFightSequence>(ref fightSequence, ActionScope.Attacker);
                 __instance.CreateAction<UnitActionRangedPostFightSequence>(ref fightSequence, ActionScope.None);
 				return false;
             }
 			return true;
-		}
+		} */
 
         [HarmonyPostfix]
         [HarmonyPatch("ShouldChoreographyContinue")]
@@ -165,88 +178,120 @@ namespace shakee.Humankind.BetterCombatDamage
         {
             if (!fightData.HasAttackerReturnStarted && attackerUnit != null && !attackerIsCavalry && defenderUnit != null && defenderUnit.PresentationEntityHolder.IsRangedUnit() && attackerUnit.PresentationEntityHolder.IsRangedUnit())
             {
-                __result = true;
+                //__result = true;
             }
 
         }
     }
-    [HarmonyPatch(typeof(PawnAction))]
-    public class PawnAction_Patch
-    {
-        [HarmonyPrefix]
-        [HarmonyPatch("OnPawnActionEnd")]
-        public static void OnPawnActionEnd(PawnAction __instance)
-		{
-            /* __instance.AttackerBattleUnit.PresentationUnit.
-			if ((__instance.ActionScope & ActionScope.Attacker) != 0 && pawnMeleeFightSequence.AttackerDies && !(attacker == null) && !attacker.IsDead)
-			{
-				Diagnostics.LogError("Attacker should be dead: {0}", attacker);
-			}
-			if ((base.ActionScope & ActionScope.Defender) != 0 && pawnMeleeFightSequence.DefenderDies && !(defender == null) && !defender.IsDead)
-			{
-				Diagnostics.LogError("Defender should be dead: " + defender);
-			}
-			PawnActionUpdateChainRLUDSChoreography pawnActionUpdateChainRLUDSChoreography = null;
-			if (!pawnMeleeFightSequence.AttackerDies && pawnMeleeFightSequence.DefenderDies && fightData.AttackerAvailablePawns.Contains(attacker))
-			{
-				pawnActionUpdateChainRLUDSChoreography = Presentation.PresentationChoreographyController.CreateChainedChoreography(attacker, ChoreographyRoleType.Attacker, fightData, Parent, GroupAction);
-			}
-			else if (!pawnMeleeFightSequence.DefenderDies && pawnMeleeFightSequence.AttackerDies && fightData.DefenderAvailablePawns.Contains(defender))
-			{
-				pawnActionUpdateChainRLUDSChoreography = Presentation.PresentationChoreographyController.CreateChainedChoreography(defender, ChoreographyRoleType.Defender, fightData, Parent, GroupAction);
-			}
-			if (pawnActionUpdateChainRLUDSChoreography != null)
-			{
-				ChainRLUDSChoreographyCreated?.Invoke(pawnActionUpdateChainRLUDSChoreography);
-			}
-			base.OnPawnActionEnd(); */
-		}
-    }
-	[HarmonyPatch(typeof(UnitActionRangedFightSequence))]
-    public class UnitActionRangedFightSequence_Patch
+
+	[HarmonyPatch(typeof(UnitAction))]
+    public class UnitAction_Patch
 	{
 				
-		/* [HarmonyPrefix]
+		[HarmonyPrefix]
+        [HarmonyPatch("CreateUnitAction")]
+		public static bool CreateUnitAction(UnitAction __instance, ref FightSequence fightSequence, ActionScope actionScope, bool blockingAction = true)
+		{
+
+			Console.WriteLine("Unit Action Called: ");
+			return true;
+		}
+	}
+
+	[HarmonyPatch(typeof(UnitActionRangedFightSequence))]
+    public class UnitActionRangedFightSequence_Patch : UnitAction
+	{
+		public static int attackersToKill = 0;
+		public static FightSequence fight;
+		//public static List<PresentationPawn> defenderAvailablePawns;
+		//public static List<PresentationPawn> attackerAvailablePawns;
+
+		[HarmonyPrefix]
         [HarmonyPatch("CreateUnitAction")]
 		public static bool CreateUnitAction(UnitActionRangedFightSequence __instance, ref FightSequence fightSequence, ActionScope actionScope, bool blockingAction = true)
 		{
-			
-			if (PresentationChoreographyController_Patch.bothRanged)
-			{
+			if (!ReturnFire.doReturnFire)
+				return true;
+			Console.WriteLine("Return Fire: " + PresentationChoreographyController_Patch.rangedRetaliate + " | SecondTry: " + PresentationChoreographyController_Patch.secondTry);
+
+/* 				var val = new UnitActionRangedFightSequence_Patch();
+			    val.BaseCreateUnit(ref fightSequence, actionScope, blockingAction);
+				// typeof(UnitAction).GetMethod("CreateUnitAction").InvokeNotOverride(__instance,new object[]
+				// {				
+				// 	fightSequence,
+				// 	actionScope,
+				// 	blockingAction,
+				// });
+
+				//var obj = new UnitActionRangedFightSequence();
+				//obj.CreateUnitAction(ref fightSequence, actionScope, blockingAction); 
+				//var method = typeof(UnitActionRangedFightSequence).GetMethod("CreateUnitAction", AccessTools.all);
+
+				//var ftn = method.MethodHandle.GetFunctionPointer();
+				//Console.WriteLine(method.ToString() + " | " + ftn.ToString());
+				//var func = (Func<string>)Activator.CreateInstance(typeof(Func<string>), __instance, ftn);
+				//R.CreateUnitAction2(ftn, ref fightSequence, actionScope, blockingAction);
+
+				//func.Invoke(ref fightSequence, actionScope, blockingAction);
+				// Console.WriteLine(func());
 				Console.WriteLine("Retaliation Triggered Attackers To Kill: " + fightSequence.AttackerPawnsToKill + " | Defenders to Kill: " + fightSequence.DefenderPawnsToKill);
-				typeof(UnitAction).GetMethod("CreateUnitAction").InvokeNotOverride(__instance, new object[] {fightSequence, actionScope, blockingAction});
+				//typeof(UnitActionRangedFightSequence).GetMethod("CreateUnitAction").InvokeNotOverride(__instance, new object[] {fightSequence, actionScope, blockingAction});
 				//__instance.CreateUnitAction(ref fightSequence, actionScope, blockingAction);
-				Console.WriteLine("Create Unit Done");
-				__instance.defenderBattleUnit(fightSequence.AttackerBattleUnit);
-				__instance.attackerBattleUnit(fightSequence.DefenderBattleUnit);
-				__instance.defenderUnit(__instance.attackerBattleUnit().PresentationUnit);
-				__instance.attackerUnit(__instance.defenderBattleUnit().PresentationUnit);
-				__instance.defendersToKill(fightSequence.AttackerPawnsToKill);
-				__instance.defenderAvailablePawns(new List<PresentationPawn>(__instance.attackerUnit().Pawns));
-				__instance.attackerAvailablePawns(new List<PresentationPawn>(__instance.defenderUnit().Pawns));
+				__instance.defenderBattleUnit(fightSequence.DefenderBattleUnit);
+				__instance.attackerBattleUnit(fightSequence.AttackerBattleUnit);
+				__instance.defenderUnit(__instance.defenderBattleUnit().PresentationUnit);
+				__instance.attackerUnit(__instance.attackerBattleUnit().PresentationUnit);
+				__instance.defendersToKill(fightSequence.DefenderPawnsToKill);	
+				
+				__instance.defenderAvailablePawns(new List<PresentationPawn>(__instance.defenderUnit().Pawns));
+				__instance.attackerAvailablePawns(new List<PresentationPawn>(__instance.attackerUnit().Pawns));
 				Console.WriteLine("Check End");
-				return false;
-			}
-			return true;			
-		} */
-/* 
-		[HarmonyPrefix]
-        [HarmonyPatch("StartUnitAction")]
-		public static bool StartUnitAction(UnitActionRangedFightSequence __instance)
+				PresentationChoreographyController_Patch.secondTry = false; */
+				//defenderAvailablePawns = __instance.defenderAvailablePawns();
+				//attackerAvailablePawns = __instance.attackerAvailablePawns();
+				attackersToKill = fightSequence.AttackerPawnsToKill;
+				fight = fightSequence;
+				return true;				
+		}
+		public void BaseCreateUnit(ref FightSequence fightSequence, ActionScope actionScope, bool blockingAction)
 		{
-			if (PresentationChoreographyController_Patch.bothRanged)
+			base.CreateUnitAction(ref fightSequence, actionScope, blockingAction);
+		}
+		protected override void OnTimedOut()
+		{
+			battle.OnTimeOut();
+			if (!PresentationChoreographyAction.EndActionOnFailSafeLifeTime)
 			{
-			__instance.StartUnitAction();
-			int count = __instance.attackerAvailablePawns().Count;
-			int count2 = __instance.defenderAvailablePawns().Count;
+				Diagnostics.LogError("UnitAction(" + base.ShortActionName + ") has timed out!");
+			}
+		}
+
+		[HarmonyPostfix]
+        [HarmonyPatch("StartUnitAction")]
+		public static void StartUnitAction(UnitActionRangedFightSequence __instance)
+		{
+			if (!ReturnFire.doReturnFire)
+				return;
+			__instance.defenderAvailablePawns(new List<PresentationPawn>(__instance.defenderUnit().Pawns));
+			__instance.attackerAvailablePawns(new List<PresentationPawn>(__instance.attackerUnit().Pawns));
+			//__instance.attackerAvailablePawns().AddRange(__instance.attackerUnit().Pawns);
+			//__instance.defenderAvailablePawns().AddRange(__instance.defenderUnit().Pawns);
+
+			Console.WriteLine("StartUnitAction");
+			int count = __instance.defenderAvailablePawns().Count;
+			int count2 = __instance.attackerAvailablePawns().Count;
 			int num = Mathf.Min(count, count2);
-			int num2 = __instance.defendersToKill();
-			System.Random random = __instance.defenderUnit().Random;
-			__instance.fightData(new PresentationUnitsFightData(__instance.attackerBattleUnit(), __instance.defenderBattleUnit(), new List<PawnPair>(), 0, __instance.defendersToKill(), __instance.attackerAvailablePawns(), __instance.defenderAvailablePawns()));
-			Presentation.PresentationChoreographyController.AddFightData(attackerBattleUnit.SimulationEntityGuid, fightData);
-			AttackerBattleUnit.FightData = fightData;
-			DefenderBattleUnit.FightData = fightData;
-			bool flag = PresentationChoreographyController.CanPawnOnlyMultiKillRanged(attackerAvailablePawns[0]);
+			int num2 = attackersToKill;
+			System.Random random = __instance.attackerUnit().Random;
+			__instance.fightData(new PresentationUnitsFightData(__instance.attackerBattleUnit(), __instance.defenderBattleUnit(), 
+				new List<PawnPair>(), attackersToKill, 0, __instance.attackerAvailablePawns(), __instance.defenderAvailablePawns()));
+			//Presentation.PresentationChoreographyController.AddFightData(__instance.attackerBattleUnit().SimulationEntityGuid, __instance.fightData());
+			__instance.AttackerBattleUnit.FightData = __instance.fightData();
+			__instance.DefenderBattleUnit.FightData = __instance.fightData();
+			Console.WriteLine("Attacker/Defender Pawns: " + __instance.attackerAvailablePawns().Count + " / " + __instance.defenderAvailablePawns().Count);
+			Console.WriteLine("Attackers/Defenders to Kill: " + attackersToKill + " / " + __instance.defendersToKill() + " | FightData To Kill: " + __instance.fightData().AttackerPawnsToKillInitial +
+				"(" + __instance.fightData().AttackersToKillRemaining + ") / " + __instance.fightData().DefenderPawnsToKillInitial + "(" + __instance.fightData().DefendersToKillRemaining + ")");
+			bool flag = PresentationChoreographyController.CanPawnOnlyMultiKillRanged(__instance.defenderAvailablePawns()[0]);			
 			int num3 = 1;
 			int num4 = 0;
 			bool flag2 = false;
@@ -266,20 +311,21 @@ namespace shakee.Humankind.BetterCombatDamage
 				}
 			}
 			PawnRangedFightSequence[] array = null;
+			Console.WriteLine("flag2: " + flag2);
 			if (flag2)
 			{
 				array = new PawnRangedFightSequence[count];
 			}
 			for (int i = 0; i < num; i++)
 			{
-				PresentationPawn presentationPawn = attackerAvailablePawns[0];
+				PresentationPawn presentationPawn = __instance.defenderAvailablePawns()[0];
 				float num6 = (float)num2 / (float)(num - i);
 				bool flag3 = num6 >= 1f || random.NextDouble() <= (double)num6;
 				bool delay = i != 0;
 				PawnRangedFightSequence pawnRangedFightSequence = null;
 				if (flag)
 				{
-					pawnRangedFightSequence = new PawnRangedFightSequence(presentationPawn, defenderUnit, flag3, delay);
+					pawnRangedFightSequence = new PawnRangedFightSequence(presentationPawn, __instance.attackerUnit(), flag3, delay);
 					if (flag3)
 					{
 						num2 = 0;
@@ -310,9 +356,9 @@ namespace shakee.Humankind.BetterCombatDamage
 						{
 							referencePawn = pawnRangedFightSequence.Targets[0];
 						}
-						PresentationPawn nearestPawn = PawnHelper.GetNearestPawn(referencePawn, defenderAvailablePawns);
+						PresentationPawn nearestPawn = PawnHelper.GetNearestPawn(referencePawn, __instance.attackerAvailablePawns());
 						pawnRangedFightSequence.Targets[j] = nearestPawn;
-						defenderAvailablePawns.Remove(nearestPawn);
+						__instance.attackerAvailablePawns().Remove(nearestPawn);
 						if (flag3)
 						{
 							num2--;
@@ -323,11 +369,13 @@ namespace shakee.Humankind.BetterCombatDamage
 						array[i] = pawnRangedFightSequence;
 					}
 				}
+				
 				if (!flag2)
 				{
-					AddPawnRangedFightSequence(pawnRangedFightSequence, i, i);
+					__instance.AddPawnRangedFightSequence(pawnRangedFightSequence, i, i);
+					
 				}
-				attackerAvailablePawns.RemoveAt(0);
+				__instance.defenderAvailablePawns().RemoveAt(0);  // ab hier nicht getauscht
 			}
 			if (count == count2 || flag)
 			{
@@ -351,8 +399,8 @@ namespace shakee.Humankind.BetterCombatDamage
 						new PawnRangedFightSequence(shooter, array2, dies: true, finalSequence);
 						for (int l = 0; l < num3; l++)
 						{
-							PresentationPawn item = (array2[l] = PawnHelper.GetNearestPawn(shooter, defenderAvailablePawns));
-							defenderAvailablePawns.Remove(item);
+							PresentationPawn item = (array2[l] = PawnHelper.GetNearestPawn(shooter, __instance.attackerAvailablePawns()));
+							__instance.attackerAvailablePawns().Remove(item);
 							num2--;
 						}
 						if (num2 == 0)
@@ -363,28 +411,26 @@ namespace shakee.Humankind.BetterCombatDamage
 				}
 				for (int m = 0; m < count; m++)
 				{
-					AddPawnRangedFightSequence(array[m], m, (m + 1) * 100);
+					__instance.AddPawnRangedFightSequence(array[m], m, (m + 1) * 100);
+					
 				}
 			}
 			else
 			{
-				int count3 = attackerAvailablePawns.Count;
-				int count4 = defenderUnit.Pawns.Count;
+				int count3 = __instance.defenderAvailablePawns().Count;
+				int count4 = __instance.attackerUnit().Pawns.Count;
 				for (int n = 0; n < count3; n++)
 				{
-					PresentationPawn shooter2 = attackerAvailablePawns[n];
+					PresentationPawn shooter2 = __instance.defenderAvailablePawns()[n];
 					int index = random.Next(0, count4);
-					PresentationPawn presentationPawn2 = defenderUnit.Pawns[index];
+					PresentationPawn presentationPawn2 = __instance.attackerUnit().Pawns[index];
 					float projectileSpread = presentationPawn2.HalfRadius + Presentation.PresentationChoreographyController.ProjectileMissSpread;
 					PawnRangedFightSequence fightSequence = new PawnRangedFightSequence(shooter2, presentationPawn2, dies: false, delay: true, miss: true, projectileSpread);
-					AddPawnRangedFightSequence(fightSequence, n + num, n + num);
+					__instance.AddPawnRangedFightSequence(fightSequence, n + num, n + num);
 				}
-			}
-				return false;
-			}
-			return true;
-		} */
-
+			}	
+			Console.WriteLine("End Attackers/Defenders to Kill: " + attackersToKill + " / " + __instance.defendersToKill() + " | FightData To Kill: " + __instance.fightData().AttackerPawnsToKillInitial +
+				"(" + __instance.fightData().AttackersToKillRemaining + ") / " + __instance.fightData().DefenderPawnsToKillInitial + "(" + __instance.fightData().DefendersToKillRemaining + ")");		
+		}
 	}	
-
 }

@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using UnityEngine;
 using Amplitude;
 using Amplitude.Framework.Simulation;
 using Amplitude.Mercury.Interop;
 using Amplitude.Mercury.Sandbox;
 using Amplitude.Mercury.Simulation;
-
+using Amplitude.Mercury.Data;
 using Amplitude.Mercury;
 using Amplitude.Mercury.UI;
 using Amplitude.Mercury.Data.Simulation;
@@ -277,7 +278,12 @@ namespace shakee.Humankind.BetterCombatDamage
 		{
 			 R.UnitActionRangedFightSequence_fightData.SetValue(self, value);
 		}
-		
+					private static FieldInfo UnitAction_ShortActionName_Field = typeof(UnitAction).GetField("ShortActionName", BindingFlags.Instance | BindingFlags.NonPublic);
+		public static string ShortActionName(this UnitAction self)
+		{
+			return (string)R.UnitAction_ShortActionName_Field.GetValue(self);
+		}
+
 
 			private static FieldInfo BattleUnit_EmpireIndex_Field = typeof(BattleUnit).GetField("EmpireIndex", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
 		public static int EmpireIndex(this BattleUnit self)
@@ -542,16 +548,16 @@ namespace shakee.Humankind.BetterCombatDamage
 				fightSequence,    
 			});
 		}
-				private static MethodInfo UnitAction_BaseClass = typeof(UnitAction).GetMethod("CreateUnitAction", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+				private static MethodInfo UnitAction_BaseClass = typeof(UnitActionRangedFightSequence).GetMethod("CreateUnitAction", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
 		{
 			typeof(FightSequence),
 			typeof(ActionScope),
 			typeof(bool),
 		}, null);
 
-        public static void CreateUnitAction(this UnitActionRangedFightSequence self, ref FightSequence fightSequence, ActionScope actionScope, bool blockingAction = true)
+        public static void CreateUnitAction2(IntPtr self, ref FightSequence fightSequence, ActionScope actionScope, bool blockingAction = true)
 		{
-			R.UnitAction_BaseClass.InvokeNotOverride(self, new object[]
+			R.UnitAction_BaseClass.Invoke(self, new object[]
 			{				
 				fightSequence,
 				actionScope,
@@ -580,19 +586,196 @@ namespace shakee.Humankind.BetterCombatDamage
 
 			});
 		}
-			private static MethodInfo PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method = typeof(PawnActionRangedStartAttack).GetMethod("SetPawnActionParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+			private static MethodInfo PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method = typeof(PawnActionRangedStartAttackParameters).GetMethod("PawnActionRangedStartAttackParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(PresentationPawn),
+			typeof(PresentationPawn),
+			typeof(bool),
+			typeof(bool),
+			typeof(bool),
+			typeof(bool),
+		}, null);
+
+        public static PresentationChoreographyActionParameters PawnActionRangedStartAttackParameters2(this PawnActionRangedStartAttack self, PresentationPawn shooter, PresentationPawn target, bool useAlternateAttack, bool doStayInIdleAfterLoops, bool lookAtTarget, bool endOnAttackStart = false)
+		{
+			return (PresentationChoreographyActionParameters)R.PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method.Invoke(self, new object[]
+			{		
+				shooter,
+				target,
+				useAlternateAttack,
+				doStayInIdleAfterLoops,
+				lookAtTarget,
+				endOnAttackStart,
+			});
+		}
+					private static MethodInfo PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method2 = typeof(PawnActionRangedStartAttackParameters).GetMethod("PawnActionRangedStartAttackParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(PawnRangedFightSequence),
+			typeof(bool),
+			typeof(bool),
+			typeof(bool),
+			typeof(bool),
+		}, null);
+
+        public static PresentationChoreographyActionParameters PawnActionRangedStartAttackParameters2(PawnRangedFightSequence sequence, bool useAlternateAttack, bool doStayInIdleAfterLoops, bool lookAtTarget, bool endOnAttackStart = false)
+		{
+			return (PresentationChoreographyActionParameters)R.PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method2.Invoke(null, new object[]
+			{		
+				sequence,
+				useAlternateAttack,
+				doStayInIdleAfterLoops,
+				lookAtTarget,
+				endOnAttackStart,
+			});
+		}
+			private static MethodInfo BattleEntityWithSimulation_HasDescriptor_Method = typeof(BattleEntityWithSimulation<Unit>).GetMethod("HasDescriptor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(StaticString),
+		}, null);
+
+        public static bool HasDescriptor2(this BattleEntityWithSimulation<Unit> self, StaticString value)
+		{
+			return (bool)R.BattleEntityWithSimulation_HasDescriptor_Method.Invoke(self, new object[]
+			{				
+				value,
+			});
+		}
+			private static MethodInfo PawnAction_SetPawnActionParameters_Method = typeof(PawnAction).GetMethod("SetPawnActionParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
 		{
 			typeof(PresentationChoreographyActionParameters),
 		}, null);
 
-        public static void PawnActionRangedStartAttackParameters2(this PawnActionRangedStartAttack self, PresentationChoreographyActionParameters pawnActionParameters)
-		{
-			R.PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method.Invoke(self, new object[]
+        public static void SetPawnActionParameters2(this PawnAction self, PresentationChoreographyActionParameters pawnActionParameters)
+		{	
+			R.PawnAction_SetPawnActionParameters_Method.Invoke(self, new object[]
 			{				
 				pawnActionParameters,
 			});
 		}
+			private static MethodInfo PawnActionWaitIdleParameters_Class_Method = typeof(PawnActionWaitIdleParameters).GetMethod("PawnActionWaitIdleParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(PresentationSubPawn[]),
+			typeof(int),
+			typeof(TagMatchType),
+			typeof(bool),
 
+		}, null);		
+
+        public static PresentationChoreographyActionParameters PawnActionWaitIdleParameters2(PresentationSubPawn[] subPawns, int subPawnsCount, TagMatchType flag = TagMatchType.CurrentState, bool useRelativeTags = true)
+		{
+			return (PresentationChoreographyActionParameters)R.PawnActionWaitIdleParameters_Class_Method.Invoke(null, new object[]
+			{				
+				subPawns,
+				subPawnsCount,
+				flag,
+				useRelativeTags,
+			});
+		}
+		private static MethodInfo PawnActionTriggerHitParameters_Class_Method = typeof(PawnActionTriggerHitParameters).GetMethod("PawnActionTriggerHitParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(bool),
+			typeof(bool),
+			typeof(PresentationPawn),
+			typeof(bool),
+			typeof(bool),
+
+		}, null);		
+
+        public static PresentationChoreographyActionParameters PawnActionTriggerHitParameters2(bool isFrontHit, bool needsProtection, PresentationPawn striker, bool skipIfProtecting = false, bool isFromCharge = false)
+		{
+			return (PresentationChoreographyActionParameters)R.PawnActionTriggerHitParameters_Class_Method.Invoke(null, new object[]
+			{				
+				isFrontHit,
+				needsProtection,
+				striker,
+				skipIfProtecting,
+				isFromCharge,
+			});
+		}
+
+							private static MethodInfo PawnActionSetProtectionAnimationParameters_Class_Method = typeof(PawnActionSetProtectionAnimationParameters).GetMethod("PawnActionSetProtectionAnimationParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(ProtectAnimationType),
+			typeof(AnimationMetaState),
+			typeof(bool),
+			typeof(bool),
+
+		}, null);		
+
+        public static PresentationChoreographyActionParameters PawnActionSetProtectionAnimationParameters2(ProtectAnimationType protect, AnimationMetaState requiredMetaState = AnimationMetaState.Unset, bool teleportToAnimation = false, bool delay = false)
+		{
+			return (PresentationChoreographyActionParameters)R.PawnActionSetProtectionAnimationParameters_Class_Method.Invoke(null, new object[]
+			{				
+				protect,
+				requiredMetaState,
+				teleportToAnimation,
+				delay,
+			});
+		}
+
+							private static MethodInfo PawnActionKillPawnParameters_Class_Method = typeof(PawnActionKillPawnParameters).GetMethod("PawnActionKillPawnParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(PresentationPawn),
+			typeof(bool),
+			typeof(bool),
+			typeof(int),
+
+		}, null);		
+
+        public static PresentationChoreographyActionParameters PawnActionKillPawnParameters2(PresentationPawn killer, bool forceKillAnim, bool killExtraNearby, int forceKillChoice = -1)
+		{
+			return (PresentationChoreographyActionParameters)R.PawnActionKillPawnParameters_Class_Method.Invoke(null, new object[]
+			{				
+				killer,
+				forceKillAnim,
+				killExtraNearby,
+				forceKillChoice,
+			});
+		}
+		private static MethodInfo PawnActionKillPawnParameters_Class_Method2 = typeof(PawnActionKillPawnParameters).GetMethod("PawnActionKillPawnParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(PresentationPawn),
+			typeof(bool),
+			typeof(bool),
+			typeof(bool),
+			typeof(int),
+			typeof(int),
+
+		}, null);		
+
+        public static PresentationChoreographyActionParameters PawnActionKillPawnParameters2(PresentationPawn killer, bool forceKillAnim, bool killExtraNearby, bool killExtraIgnoreDistance, int killExtraMaxCount, int forceKillChoice = -1)
+		{
+			return (PresentationChoreographyActionParameters)R.PawnActionKillPawnParameters_Class_Method2.Invoke(null, new object[]
+			{				
+				killer,
+				forceKillAnim,
+				killExtraNearby,
+				killExtraIgnoreDistance,
+				killExtraMaxCount,
+				forceKillChoice,
+
+			});
+		}
+
+			private static MethodInfo PawnActionSetAnimationIntParameters_Class_Method = typeof(PawnActionSetAnimationIntParameters).GetMethod("PawnActionSetAnimationIntParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		{
+			typeof(int),
+			typeof(int),
+			typeof(PresentationSubPawn[]),
+			typeof(int),
+		}, null);		
+
+        public static PresentationChoreographyActionParameters PawnActionSetAnimationIntParameters(int variableID, int value, PresentationSubPawn[] subPawns, int subPawnsCount)
+		{
+			return (PresentationChoreographyActionParameters)R.PawnActionSetAnimationIntParameters_Class_Method.Invoke(null, new object[]
+			{				
+				variableID,
+				value,
+				subPawns,
+				subPawnsCount,
+			});
+		}
+	
 		public static object InvokeNotOverride(this MethodInfo methodInfo, object targetObject, params object[] arguments) 
 		{
 			var parameters = methodInfo.GetParameters();
@@ -612,7 +795,7 @@ namespace shakee.Humankind.BetterCombatDamage
 
 			var type = targetObject.GetType();
 			var dynamicMethod = new DynamicMethod("", returnType, 
-					new Type[] { type, typeof(Object) }, type);
+					new Type[] { type, typeof(System.Object) }, type);
 
 			var iLGenerator = dynamicMethod.GetILGenerator();
 			iLGenerator.Emit(OpCodes.Ldarg_0); // this

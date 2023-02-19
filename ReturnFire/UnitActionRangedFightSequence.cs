@@ -1,12 +1,10 @@
-using System;
+/* using System;
 using System.Collections.Generic;
 using Amplitude.Mercury.Data.World;
-using Amplitude.Mercury;
-using Amplitude;
 using UnityEngine;
-using Amplitude.Mercury.Presentation;
+using shakee.Humankind.BetterCombatDamage;
 
-namespace shakee.Humankind.BetterCombatDamage
+namespace Amplitude.Mercury.Presentation
 {
 	public class UnitActionRangedFightSequence : UnitAction
 	{
@@ -32,12 +30,12 @@ namespace shakee.Humankind.BetterCombatDamage
 
 		public override void CreateUnitAction(ref FightSequence fightSequence, ActionScope actionScope, bool blockingAction = true)
 		{
-			if (PresentationChoreographyController_Patch.rangedRetaliate)
+			if (PresentationChoreographyController_Patch.rangedRetaliate && PresentationChoreographyController_Patch.secondTry)
 				this.rangedRetaliate = true;
 			else	
 				this.rangedRetaliate = false;
 			base.CreateUnitAction(ref fightSequence, actionScope, blockingAction);
-			Console.WriteLine("After CreateUnitAction");
+			Console.WriteLine("After CreateUnitAction NEW");
 			attackerBattleUnit = fightSequence.AttackerBattleUnit;
 			defenderBattleUnit = fightSequence.DefenderBattleUnit;
 			attackerUnit = attackerBattleUnit.PresentationUnit;
@@ -51,7 +49,9 @@ namespace shakee.Humankind.BetterCombatDamage
 
 		public override void StartUnitAction()
 		{
+			Console.WriteLine("Trigger StartUnitAction");
 			base.StartUnitAction();
+			
 			int count = attackerAvailablePawns.Count;
 			int count2 = defenderAvailablePawns.Count;
 			int num = Mathf.Min(count, count2);
@@ -199,6 +199,7 @@ namespace shakee.Humankind.BetterCombatDamage
 
 		public void AddPawnRangedFightSequence(PawnRangedFightSequence fightSequence, int attackerActionGroup, int defenderActionGroup, PawnActionRangedStartAttack rangedAttackAction, int attackLoopIndex)
 		{
+			Console.WriteLine("Trigger AddPawnRanged_Long");
 			PresentationPawn shooter = fightSequence.Shooter;
 			PresentationPawn[] targets = fightSequence.Targets;
 			int num = ((targets != null) ? targets.Length : 0);
@@ -236,8 +237,8 @@ namespace shakee.Humankind.BetterCombatDamage
 			bool isNewRangedAttackAction = rangedAttackAction == null;
 			if (rangedAttackAction == null)
 			{
-				rangedAttackAction = CreatePawnAction<PawnActionRangedStartAttack>(shooter, ActionScope.Attacker, attackerActionGroup != defenderActionGroup, attackerActionGroup);
-				rangedAttackAction.PawnActionRangedStartAttackParameters2(new PawnActionRangedStartAttackParameters(fightSequence, useAlternateAttack, doStayInIdleAfterLoops: false, lookAtTarget: false));
+				rangedAttackAction = CreatePawnAction<PawnActionRangedStartAttack>(shooter, ActionScope.Attacker, attackerActionGroup != defenderActionGroup, attackerActionGroup);				
+				rangedAttackAction.SetPawnActionParameters(R.PawnActionRangedStartAttackParameters2(fightSequence, useAlternateAttack, doStayInIdleAfterLoops: false, lookAtTarget: false));
 			}
 			if (targets != null)
 			{
@@ -280,7 +281,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			}
 			if (fightSequence.NextSequence == null)
 			{
-				CreatePawnAction<PawnActionWaitIdle>(shooter, ActionScope.Attacker, blockingAction: true, attackerActionGroup).SetPawnActionParameters(new PawnActionWaitIdleParameters(shooter.FighterSubPawns, shooter.FighterSubPawnsCount));
+				CreatePawnAction<PawnActionWaitIdle>(shooter, ActionScope.Attacker, blockingAction: true, attackerActionGroup).SetPawnActionParameters(R.PawnActionWaitIdleParameters2(shooter.FighterSubPawns, shooter.FighterSubPawnsCount));
 				CreatePawnAction<PawnActionRangedPostFight>(shooter, ActionScope.Attacker, blockingAction: false, attackerActionGroup);
 			}
 			StartPawnActions(attackerActionGroup);
@@ -292,6 +293,7 @@ namespace shakee.Humankind.BetterCombatDamage
 
 		public void AddPawnRangedFightSequence(PawnRangedFightSequence fightSequence, int attackerActionGroup, int defenderActionGroup)
 		{
+			Console.WriteLine("Trigger AddPawnRanged_Short");
 			AddPawnRangedFightSequence(fightSequence, attackerActionGroup, defenderActionGroup, null, 0);
 		}
 
@@ -312,6 +314,7 @@ namespace shakee.Humankind.BetterCombatDamage
 
 		protected override void OnPawnActionsEnd()
 		{
+			Console.WriteLine("Trigger OnPawnActionsEnd");
 			base.OnPawnActionsEnd();
 			OnUnitActionEnd();
 		}
@@ -344,7 +347,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			if ((defender.AnimationCapabilitiesAny & PawnAnimationCapability.Hit) != 0)
 			{
 				bool needsProtection = !defender.Definition.IgnoreProtectOnRangedAttack;
-				CreatePawnAction<PawnActionTriggerHit>(defender, ActionScope.Defender, blockingAction: true, pawnActionGroup).SetPawnActionParameters(new PawnActionTriggerHitParameters(!attacker.MainSubPawn.IsShotTrajectoryCurved, needsProtection, attacker));
+				CreatePawnAction<PawnActionTriggerHit>(defender, ActionScope.Defender, blockingAction: true, pawnActionGroup).SetPawnActionParameters(R.PawnActionTriggerHitParameters2(!attacker.MainSubPawn.IsShotTrajectoryCurved, needsProtection, attacker));
 				CreatePawnAction<PawnActionSetProtectionAnimation>(defender, ActionScope.Defender, blockingAction: false, pawnActionGroup).SetPawnActionParameters(new PawnActionSetProtectionAnimationParameters(ProtectAnimationType.None));
 				CreatePawnAction<PawnActionSetAnimationInt>(defender, ActionScope.Defender, blockingAction: false, pawnActionGroup).SetPawnActionParameters(new PawnActionSetAnimationIntParameters(AnimationVariableNames.DefenseChoice, 0, defender.SubPawns, defender.SubPawnCount));
 			}
@@ -365,3 +368,4 @@ namespace shakee.Humankind.BetterCombatDamage
 		}
 	}
 }
+ */
