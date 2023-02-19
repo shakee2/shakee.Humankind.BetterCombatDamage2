@@ -129,7 +129,7 @@ namespace shakee.Humankind.BetterCombatDamage
     {
 		public static bool rangedRetaliate = false;
 		public static bool secondTry = false;
-/* 
+
         [HarmonyPrefix]
         [HarmonyPatch("CreateActionsForRangedFightSequence")]
         public static bool CreateActionsForRangedFightSequence(ref PresentationChoreographyController __instance, ref FightSequence fightSequence)
@@ -170,7 +170,7 @@ namespace shakee.Humankind.BetterCombatDamage
 				return false;
             }
 			return true;
-		} */
+		}
 
         [HarmonyPostfix]
         [HarmonyPatch("ShouldChoreographyContinue")]
@@ -197,6 +197,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			return true;
 		}
 	}
+# region patch UnitActionRangedFightSequence
 
 	[HarmonyPatch(typeof(UnitActionRangedFightSequence))]
     public class UnitActionRangedFightSequence_Patch : UnitAction
@@ -266,26 +267,26 @@ namespace shakee.Humankind.BetterCombatDamage
 			}
 		}
 
-		[HarmonyPostfix]
+		[HarmonyPrefix]
         [HarmonyPatch("StartUnitAction")]
-		public static void StartUnitAction(UnitActionRangedFightSequence __instance)
+		public static bool StartUnitAction(UnitActionRangedFightSequence __instance)
 		{
 			if (!ReturnFire.doReturnFire)
-				return;
-			__instance.defenderAvailablePawns(new List<PresentationPawn>(__instance.defenderUnit().Pawns));
-			__instance.attackerAvailablePawns(new List<PresentationPawn>(__instance.attackerUnit().Pawns));
+				return true;
+			//__instance.defenderAvailablePawns(new List<PresentationPawn>(__instance.defenderUnit().Pawns));
+			//__instance.attackerAvailablePawns(new List<PresentationPawn>(__instance.attackerUnit().Pawns));
 			//__instance.attackerAvailablePawns().AddRange(__instance.attackerUnit().Pawns);
 			//__instance.defenderAvailablePawns().AddRange(__instance.defenderUnit().Pawns);
 
 			Console.WriteLine("StartUnitAction");
-			int count = __instance.defenderAvailablePawns().Count;
-			int count2 = __instance.attackerAvailablePawns().Count;
+			int count = __instance.attackerAvailablePawns().Count;
+			int count2 = __instance.defenderAvailablePawns().Count;
 			int num = Mathf.Min(count, count2);
 			int num2 = attackersToKill;
 			System.Random random = __instance.attackerUnit().Random;
 			__instance.fightData(new PresentationUnitsFightData(__instance.attackerBattleUnit(), __instance.defenderBattleUnit(), 
-				new List<PawnPair>(), attackersToKill, 0, __instance.attackerAvailablePawns(), __instance.defenderAvailablePawns()));
-			//Presentation.PresentationChoreographyController.AddFightData(__instance.attackerBattleUnit().SimulationEntityGuid, __instance.fightData());
+				new List<PawnPair>(), attackersToKill, __instance.defendersToKill(), __instance.attackerAvailablePawns(), __instance.defenderAvailablePawns()));
+			Presentation.PresentationChoreographyController.AddFightData(__instance.attackerBattleUnit().SimulationEntityGuid, __instance.fightData());
 			__instance.AttackerBattleUnit.FightData = __instance.fightData();
 			__instance.DefenderBattleUnit.FightData = __instance.fightData();
 			Console.WriteLine("Attacker/Defender Pawns: " + __instance.attackerAvailablePawns().Count + " / " + __instance.defenderAvailablePawns().Count);
@@ -375,17 +376,17 @@ namespace shakee.Humankind.BetterCombatDamage
 					__instance.AddPawnRangedFightSequence(pawnRangedFightSequence, i, i);
 					
 				}
-				__instance.defenderAvailablePawns().RemoveAt(0);  // ab hier nicht getauscht
+				__instance.defenderAvailablePawns().RemoveAt(0); 
 			}
 			if (count == count2 || flag)
 			{
-				return;
+				return false;
 			}
 			if (count2 > count)
 			{
 				if (!flag2)
 				{
-					return;
+					return false;
 				}
 				while (num2 > 0)
 				{
@@ -431,6 +432,8 @@ namespace shakee.Humankind.BetterCombatDamage
 			}	
 			Console.WriteLine("End Attackers/Defenders to Kill: " + attackersToKill + " / " + __instance.defendersToKill() + " | FightData To Kill: " + __instance.fightData().AttackerPawnsToKillInitial +
 				"(" + __instance.fightData().AttackersToKillRemaining + ") / " + __instance.fightData().DefenderPawnsToKillInitial + "(" + __instance.fightData().DefendersToKillRemaining + ")");		
+			return false;
 		}
 	}	
+# endregion
 }
