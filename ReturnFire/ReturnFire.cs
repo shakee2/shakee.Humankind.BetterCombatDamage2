@@ -156,8 +156,8 @@ namespace shakee.Humankind.BetterCombatDamage
 					_ = fightSequence.DefenderBattleUnit.PresentationUnit;
 					__instance.CreateAction<UnitActionWaitForPawnsAvailability>(ref fightSequence, ActionScope.Both);
 					__instance.CreateAction<UnitActionPrepareRangedChoreography>(ref fightSequence, ActionScope.Both);
-					__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Both);
-					__instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
+					__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Attacker);
+					//__instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
 					__instance.CreateAction<UnitActionRangedPostFightSequence>(ref fightSequence, ActionScope.None);
 					return false;
 				}

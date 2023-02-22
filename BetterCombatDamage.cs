@@ -11,7 +11,7 @@ using HumankindModTool;
 namespace shakee.Humankind.BetterCombatDamage
 {
 
-    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.2")]
+    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.3")]
     public class BetterCombatDamage : BaseUnityPlugin
     {
         const string PLUGIN_GUID = "shakee.Humankind.BetterCombatDamage";
