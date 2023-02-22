@@ -137,44 +137,32 @@ namespace shakee.Humankind.BetterCombatDamage
         [HarmonyPatch("CreateActionsForRangedFightSequence")]
         public static bool CreateActionsForRangedFightSequence(ref PresentationChoreographyController __instance, ref FightSequence fightSequence)
 		{			
-
-            Console.WriteLine("Pawn Ranged Combat");
-            if (fightSequence.AttackerBattleUnit.IsRangedUnit())
-            {
-				
-                PresentationUnit presentationUnit = fightSequence.AttackerBattleUnit.PresentationUnit;
-                PresentationUnit presentationUnit2 = fightSequence.DefenderBattleUnit.PresentationUnit;
-                fightSequence.DefenderBattleUnit.FilterFighterSubPawns(ChoreographyCompatibilityFlag.Ranged);
-                fightSequence.AttackerBattleUnit.FilterFighterSubPawns(ChoreographyCompatibilityFlag.Ranged);				
-                Console.WriteLine("Defender & Attacker are Ranged");
-                if (!BattleDebug.UseHealthRatio && fightSequence.AttackerPawnsToKill != 0)
+			if (HumankindModTool.GameOptionHelper.CheckGameOption(BetterCombatDamage.ReturnFire,"true"))
+			{
+				Console.WriteLine("Pawn Ranged Combat");
+				if (fightSequence.AttackerBattleUnit.IsRangedUnit())
 				{
-                    Diagnostics.LogError($"{fightSequence.AttackerBattleUnit} vs {fightSequence.DefenderBattleUnit} ({fightSequence.AttackerPawnsToKill} vs {fightSequence.DefenderPawnsToKill})");
-                }
-                
-                _ = fightSequence.DefenderBattleUnit.PresentationUnit;
-                __instance.CreateAction<UnitActionWaitForPawnsAvailability>(ref fightSequence, ActionScope.Both);
-                __instance.CreateAction<UnitActionPrepareRangedChoreography>(ref fightSequence, ActionScope.Both);
-                __instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Both);
-                __instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
-                __instance.CreateAction<UnitActionRangedPostFightSequence>(ref fightSequence, ActionScope.None);
-				return false;
-            }
+					
+					PresentationUnit presentationUnit = fightSequence.AttackerBattleUnit.PresentationUnit;
+					PresentationUnit presentationUnit2 = fightSequence.DefenderBattleUnit.PresentationUnit;
+					fightSequence.DefenderBattleUnit.FilterFighterSubPawns(ChoreographyCompatibilityFlag.Ranged);
+					fightSequence.AttackerBattleUnit.FilterFighterSubPawns(ChoreographyCompatibilityFlag.Ranged);				
+					Console.WriteLine("Defender & Attacker are Ranged");
+					if (!BattleDebug.UseHealthRatio && fightSequence.AttackerPawnsToKill != 0)
+					{
+						Diagnostics.LogError($"{fightSequence.AttackerBattleUnit} vs {fightSequence.DefenderBattleUnit} ({fightSequence.AttackerPawnsToKill} vs {fightSequence.DefenderPawnsToKill})");
+					}
+					
+					_ = fightSequence.DefenderBattleUnit.PresentationUnit;
+					__instance.CreateAction<UnitActionWaitForPawnsAvailability>(ref fightSequence, ActionScope.Both);
+					__instance.CreateAction<UnitActionPrepareRangedChoreography>(ref fightSequence, ActionScope.Both);
+					__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Both);
+					__instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
+					__instance.CreateAction<UnitActionRangedPostFightSequence>(ref fightSequence, ActionScope.None);
+					return false;
+				}
+			}            
 			return true; 
 		}
     }
-
-	[HarmonyPatch(typeof(UnitAction))]
-    public class UnitAction_Patch
-	{
-				
-		[HarmonyPrefix]
-        [HarmonyPatch("CreateUnitAction")]
-		public static bool CreateUnitAction(UnitAction __instance, ref FightSequence fightSequence, ActionScope actionScope, bool blockingAction = true)
-		{
-
-			Console.WriteLine("Unit Action Called: " + __instance.shortActionName());
-			return true;
-		}
-	}
 }
