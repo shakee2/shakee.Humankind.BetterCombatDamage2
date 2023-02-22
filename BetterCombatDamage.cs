@@ -11,7 +11,7 @@ using HumankindModTool;
 namespace shakee.Humankind.BetterCombatDamage
 {
 
-    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.0")]
+    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.1.3")]
     public class BetterCombatDamage : BaseUnityPlugin
     {
         const string PLUGIN_GUID = "shakee.Humankind.BetterCombatDamage";
@@ -69,7 +69,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			ControlType = 0,
 			Key = "GameOption_shakee_ReturnFire",
 			DefaultValue = "false",
-            editbleInGame = false,
+            editbleInGame = true,
 			Title = "[CombatStrength] Enable Return Fire",
 			Description = "Enabling this will allow ranged units to return fire when they get attacked by other ranged units.",
 			GroupKey = "GameOptionGroup_LobbyPaceOptions",
@@ -103,6 +103,7 @@ namespace shakee.Humankind.BetterCombatDamage
 		    GameOptionHelper.Initialize(new GameOptionInfo[]
 			{
 				BetterCombatDamage.CombatDamageType,
+                BetterCombatDamage.ReturnFire,
 			});
 			return true;
 		}

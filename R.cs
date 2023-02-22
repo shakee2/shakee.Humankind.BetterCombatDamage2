@@ -21,165 +21,8 @@ namespace shakee.Humankind.BetterCombatDamage
 	// Token: 0x02000037 RID: 55
 	public static class R
     {
-        private static FieldInfo MajorEmpire_Armies_FieldInfo = typeof(MajorEmpire).GetField("Armies", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static ReferenceCollection<Army> Armies(this MajorEmpire self)
-		{
-			return (ReferenceCollection<Army>)R.MajorEmpire_Armies_FieldInfo.GetValue(self);
-		}
-        private static FieldInfo Army_Units_FieldInfo = typeof(Army).GetField("Units", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static ReferenceCollection<Unit> Units(this Army self)
-		{
-			return (ReferenceCollection<Unit>)R.Army_Units_FieldInfo.GetValue(self);
-		}
-        private static FieldInfo Army_StealthMax_FieldInfo = typeof(Army).GetField("StealthMax", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static Property StealthMax(this Army self)
-		{
-			return (Property)R.Army_StealthMax_FieldInfo.GetValue(self);
-		}
-        private static FieldInfo Unit_StealthMax_FieldInfo = typeof(Unit).GetField("StealthMax", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static Property StealthMax(this Unit self)
-		{
-			return (Property)R.Unit_StealthMax_FieldInfo.GetValue(self);
-		}
-        private static FieldInfo Unit_StealthRegen_FieldInfo = typeof(Unit).GetField("StealthRegen", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static Property StealthRegen(this Unit self)
-		{
-			return (Property)R.Unit_StealthRegen_FieldInfo.GetValue(self);
-		}
-        private static FieldInfo Unit_StealthValue_FieldInfo = typeof(Unit).GetField("StealthValue", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static Property StealthValue(this Unit self)
-		{
-			return (Property)R.Unit_StealthValue_FieldInfo.GetValue(self);
-		}
-        private static FieldInfo Army_WorldPosition_FieldInfo = typeof(Army).GetField("WorldPosition", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static WorldPosition WorldPosition(this Army self)
-		{
-			return (WorldPosition)R.Army_WorldPosition_FieldInfo.GetValue(self);
-		}      
-        private static FieldInfo SandBox_World_FieldInfo = typeof(Sandbox).GetField("World", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static World World(this Sandbox self)
-		{
-			return (World)R.SandBox_World_FieldInfo.GetValue(self);
-		}    
-        private static FieldInfo World_TileInfo_FieldInfo = typeof(World).GetField("TileInfo", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static ArrayWithFrame<TileInfo> TileInfo(this World self)
-		{
-			return (ArrayWithFrame<TileInfo>)R.World_TileInfo_FieldInfo.GetValue(self);
-		}  
         
-		private static MethodInfo StealthAncillary_GetStealthFailureFlags_MethodInfo = typeof(StealthAncillary).GetMethod("GetStealthRegenFailureFlag", BindingFlags.Static | BindingFlags.Public, null, new Type[]
-		{
-			typeof(UnitCollection),
-			typeof(bool),
-		}, null);
 
-        public static StealthRegenFailureFlags GetStealthRegenFailureFlag2(UnitCollection collection, bool ignoreDistrict)
-		{
-			return (StealthRegenFailureFlags)R.StealthAncillary_GetStealthFailureFlags_MethodInfo.Invoke(null, new object[]
-			{
-				collection,
-				ignoreDistrict,
-			});
-		}
-        private static MethodInfo DiplomaticRelation_GetEmpireEmbassy_MethodInfo = typeof(DiplomaticRelation).GetMethod("GetEmpireEmbassy", BindingFlags.Static | BindingFlags.Public, null, new Type[]
-		{
-			typeof(int),
-		}, null);
-
-        public static DiplomaticAmbassy GetEmpireEmbassy(this DiplomaticRelation self, int myEmpireIndex)
-		{
-			return (DiplomaticAmbassy)R.DiplomaticRelation_GetEmpireEmbassy_MethodInfo.Invoke(self, new object[]
-			{
-				myEmpireIndex,
-			});
-		}
-        private static MethodInfo StealthAncillary_GetBestStealthDetection_MethodInfo = typeof(StealthAncillary).GetMethod("GetBestStealthDetection", BindingFlags.Static | BindingFlags.Public, null, new Type[]
-		{
-			typeof(MajorEmpire),
-			typeof(int),
-            typeof(int),
-		}, null);
-
-        public static MajorEmpireTerritory GetBestStealthDetection(this StealthAncillary self, MajorEmpire observerEmpire, int territoryIndex, int excludedEmpireIndex = -1)
-		{
-			return (MajorEmpireTerritory)R.StealthAncillary_GetBestStealthDetection_MethodInfo.Invoke(self, new object[]
-			{
-				observerEmpire,
-				territoryIndex,
-                excludedEmpireIndex,
-			});
-		}
-        
-        private static FieldInfo MajorEmpire_Index_FieldInfo = typeof(MajorEmpire).GetField("Index", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static int Index(this MajorEmpire self)
-		{
-			return (int)R.MajorEmpire_Index_FieldInfo.GetValue(self);
-		} 
-        private static FieldInfo DiplomaticRelation_LeftEmbassyIndex_FieldInfo = typeof(DiplomaticRelation).GetField("LeftEmpireIndex", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static int LeftEmpireIndex(this DiplomaticRelation self)
-		{
-			return (int)R.DiplomaticRelation_LeftEmbassyIndex_FieldInfo.GetValue(self);
-		} 
-        private static FieldInfo DiplomaticRelation_RightEmbassyIndex_FieldInfo = typeof(DiplomaticRelation).GetField("RightEmpireIndex", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static int RightEmpireIndex(this DiplomaticRelation self)
-		{
-			return (int)R.DiplomaticRelation_RightEmbassyIndex_FieldInfo.GetValue(self);
-		} 
-        private static FieldInfo DiplomaticRelation_LeftEmbassy_FieldInfo = typeof(DiplomaticRelation).GetField("LeftAmbassy", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static Reference<DiplomaticAmbassy> LeftAmbassy(this DiplomaticRelation self)
-		{
-			return (Reference<DiplomaticAmbassy>)R.DiplomaticRelation_LeftEmbassy_FieldInfo.GetValue(self);
-		} 
-        private static FieldInfo DiplomaticRelation_RightEmbassy_FieldInfo = typeof(DiplomaticRelation).GetField("RightAmbassy", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static Reference<DiplomaticAmbassy> RightAmbassy(this DiplomaticRelation self)
-		{
-			return (Reference<DiplomaticAmbassy>)R.DiplomaticRelation_RightEmbassy_FieldInfo.GetValue(self);
-		} 
-  
-        private static FieldInfo DiplomaticAmbassy_CurrentAbilities_FieldInfo = typeof(DiplomaticAmbassy).GetField("CurrentAbilities", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static DiplomaticAbility CurrentAbilities(this DiplomaticAmbassy self)
-		{
-			return (DiplomaticAbility)R.DiplomaticAmbassy_CurrentAbilities_FieldInfo.GetValue(self);
-		}
-
-
-        private static FieldInfo MajorEmpire_DiplomaticRelationByOtherEmpireIndex_FieldInfo = typeof(MajorEmpire).GetField("DiplomaticRelationByOtherEmpireIndex", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static DiplomaticRelation[] DiplomaticRelationByOtherEmpireIndex(this MajorEmpire self)
-		{
-			return (DiplomaticRelation[])R.MajorEmpire_DiplomaticRelationByOtherEmpireIndex_FieldInfo.GetValue(self);
-		}
-        private static FieldInfo StealthAncillary_Territories_FieldInfo = typeof(StealthAncillary).GetField("majorEmpireTerritories", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static MajorEmpireTerritory[] majorEmpireTerritories(this StealthAncillary self)
-		{
-			return (MajorEmpireTerritory[])R.StealthAncillary_Territories_FieldInfo.GetValue(self);
-		}
-        
-		private static FieldInfo SandboxManager_Sandbox_FieldInfo = typeof(SandboxManager).GetField("Sandbox", BindingFlags.Static | BindingFlags.NonPublic);
-
-		private static PropertyInfo Sandbox_Turn_PropertyInfo = typeof(Sandbox).GetProperty("Turn", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static PropertyInfo Sandbox_SandboxThreadStartSettings_PropertyInfo = typeof(Sandbox).GetProperty("SandboxThreadStartSettings", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static PropertyInfo SandboxThreadStartSettings_Parameter_PropertyInfo = typeof(SandboxThreadStartSettings).GetProperty("Parameter", BindingFlags.Instance | BindingFlags.NonPublic);
-
-		public static Sandbox SandboxManager_Sandbox()
-		{
-			return (Sandbox)R.SandboxManager_Sandbox_FieldInfo.GetValue(null);
-		}
-		public static int Turn(this Sandbox self)
-		{
-			return (int)R.Sandbox_Turn_PropertyInfo.GetValue(self);
-		}
-		public static SandboxThreadStartSettings SandboxThreadStartSettings(Sandbox self)
-		{
-			return (SandboxThreadStartSettings)R.Sandbox_SandboxThreadStartSettings_PropertyInfo.GetValue(self);
-		}
-		public static void SandboxThreadStartSettings(Sandbox self, object parameter)
-		{
-			R.Sandbox_SandboxThreadStartSettings_PropertyInfo.SetValue(self, parameter);
-		}
-		public static object Parameter(this SandboxThreadStartSettings self)
-		{
-			return (object)R.SandboxThreadStartSettings_Parameter_PropertyInfo.GetValue(self);
-		}
         private static PropertyInfo BattleUnit_AttackDamage_PropertyInfo = typeof(BattleUnit).GetProperty("AttackDamage", BindingFlags.Static | BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
 
 		public static void AttackDamage(this BattleUnit self, FixedPoint value)
@@ -278,8 +121,8 @@ namespace shakee.Humankind.BetterCombatDamage
 		{
 			 R.UnitActionRangedFightSequence_fightData.SetValue(self, value);
 		}
-					private static FieldInfo UnitAction_ShortActionName_Field = typeof(UnitAction).GetField("ShortActionName", BindingFlags.Instance | BindingFlags.NonPublic);
-		public static string ShortActionName(this UnitAction self)
+					private static FieldInfo UnitAction_ShortActionName_Field = typeof(UnitAction).GetField("shortActionName", BindingFlags.Instance | BindingFlags.NonPublic);
+		public static string shortActionName(this UnitAction self)
 		{
 			return (string)R.UnitAction_ShortActionName_Field.GetValue(self);
 		}
@@ -586,48 +429,48 @@ namespace shakee.Humankind.BetterCombatDamage
 
 			});
 		}
-			private static MethodInfo PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method = typeof(PawnActionRangedStartAttackParameters).GetMethod("PawnActionRangedStartAttackParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
-		{
-			typeof(PresentationPawn),
-			typeof(PresentationPawn),
-			typeof(bool),
-			typeof(bool),
-			typeof(bool),
-			typeof(bool),
-		}, null);
+		// 	private static MethodInfo PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method = typeof(PawnActionRangedStartAttackParameters).GetMethod("PawnActionRangedStartAttackParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		// {
+		// 	typeof(PresentationPawn),
+		// 	typeof(PresentationPawn),
+		// 	typeof(bool),
+		// 	typeof(bool),
+		// 	typeof(bool),
+		// 	typeof(bool),
+		// }, null);
 
-        public static PresentationChoreographyActionParameters PawnActionRangedStartAttackParameters2(this PawnActionRangedStartAttack self, PresentationPawn shooter, PresentationPawn target, bool useAlternateAttack, bool doStayInIdleAfterLoops, bool lookAtTarget, bool endOnAttackStart = false)
-		{
-			return (PresentationChoreographyActionParameters)R.PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method.Invoke(self, new object[]
-			{		
-				shooter,
-				target,
-				useAlternateAttack,
-				doStayInIdleAfterLoops,
-				lookAtTarget,
-				endOnAttackStart,
-			});
-		}
-					private static MethodInfo PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method2 = typeof(PawnActionRangedStartAttackParameters).GetMethod("PawnActionRangedStartAttackParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
-		{
-			typeof(PawnRangedFightSequence),
-			typeof(bool),
-			typeof(bool),
-			typeof(bool),
-			typeof(bool),
-		}, null);
+        // public static PresentationChoreographyActionParameters PawnActionRangedStartAttackParameters2(this PawnActionRangedStartAttack self, PresentationPawn shooter, PresentationPawn target, bool useAlternateAttack, bool doStayInIdleAfterLoops, bool lookAtTarget, bool endOnAttackStart = false)
+		// {
+		// 	return (PresentationChoreographyActionParameters)R.PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method.Invoke(self, new object[]
+		// 	{		
+		// 		shooter,
+		// 		target,
+		// 		useAlternateAttack,
+		// 		doStayInIdleAfterLoops,
+		// 		lookAtTarget,
+		// 		endOnAttackStart,
+		// 	});
+		// }
+		// 			private static MethodInfo PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method2 = typeof(PawnActionRangedStartAttackParameters).GetMethod("PawnActionRangedStartAttackParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		// {
+		// 	typeof(PawnRangedFightSequence),
+		// 	typeof(bool),
+		// 	typeof(bool),
+		// 	typeof(bool),
+		// 	typeof(bool),
+		// }, null);
 
-        public static PresentationChoreographyActionParameters PawnActionRangedStartAttackParameters2(PawnRangedFightSequence sequence, bool useAlternateAttack, bool doStayInIdleAfterLoops, bool lookAtTarget, bool endOnAttackStart = false)
-		{
-			return (PresentationChoreographyActionParameters)R.PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method2.Invoke(null, new object[]
-			{		
-				sequence,
-				useAlternateAttack,
-				doStayInIdleAfterLoops,
-				lookAtTarget,
-				endOnAttackStart,
-			});
-		}
+        // public static PresentationChoreographyActionParameters PawnActionRangedStartAttackParameters2(PawnRangedFightSequence sequence, bool useAlternateAttack, bool doStayInIdleAfterLoops, bool lookAtTarget, bool endOnAttackStart = false)
+		// {
+		// 	return (PresentationChoreographyActionParameters)R.PawnActionRangedStartAttackParameters_PawnActionRangedStartAttackParameters_Method2.Invoke(null, new object[]
+		// 	{		
+		// 		sequence,
+		// 		useAlternateAttack,
+		// 		doStayInIdleAfterLoops,
+		// 		lookAtTarget,
+		// 		endOnAttackStart,
+		// 	});
+		// }
 			private static MethodInfo BattleEntityWithSimulation_HasDescriptor_Method = typeof(BattleEntityWithSimulation<Unit>).GetMethod("HasDescriptor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
 		{
 			typeof(StaticString),
@@ -652,46 +495,46 @@ namespace shakee.Humankind.BetterCombatDamage
 				pawnActionParameters,
 			});
 		}
-			private static MethodInfo PawnActionWaitIdleParameters_Class_Method = typeof(PawnActionWaitIdleParameters).GetMethod("PawnActionWaitIdleParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
-		{
-			typeof(PresentationSubPawn[]),
-			typeof(int),
-			typeof(TagMatchType),
-			typeof(bool),
+		// 	private static MethodInfo PawnActionWaitIdleParameters_Class_Method = typeof(PawnActionWaitIdleParameters).GetMethod("PawnActionWaitIdleParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		// {
+		// 	typeof(PresentationSubPawn[]),
+		// 	typeof(int),
+		// 	typeof(TagMatchType),
+		// 	typeof(bool),
 
-		}, null);		
+		// }, null);		
 
-        public static PresentationChoreographyActionParameters PawnActionWaitIdleParameters2(PresentationSubPawn[] subPawns, int subPawnsCount, TagMatchType flag = TagMatchType.CurrentState, bool useRelativeTags = true)
-		{
-			return (PresentationChoreographyActionParameters)R.PawnActionWaitIdleParameters_Class_Method.Invoke(null, new object[]
-			{				
-				subPawns,
-				subPawnsCount,
-				flag,
-				useRelativeTags,
-			});
-		}
-		private static MethodInfo PawnActionTriggerHitParameters_Class_Method = typeof(PawnActionTriggerHitParameters).GetMethod("PawnActionTriggerHitParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
-		{
-			typeof(bool),
-			typeof(bool),
-			typeof(PresentationPawn),
-			typeof(bool),
-			typeof(bool),
+        // public static PresentationChoreographyActionParameters PawnActionWaitIdleParameters2(PresentationSubPawn[] subPawns, int subPawnsCount, TagMatchType flag = TagMatchType.CurrentState, bool useRelativeTags = true)
+		// {
+		// 	return (PresentationChoreographyActionParameters)R.PawnActionWaitIdleParameters_Class_Method.Invoke(null, new object[]
+		// 	{				
+		// 		subPawns,
+		// 		subPawnsCount,
+		// 		flag,
+		// 		useRelativeTags,
+		// 	});
+		// }
+		// private static MethodInfo PawnActionTriggerHitParameters_Class_Method = typeof(PawnActionTriggerHitParameters).GetMethod("PawnActionTriggerHitParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
+		// {
+		// 	typeof(bool),
+		// 	typeof(bool),
+		// 	typeof(PresentationPawn),
+		// 	typeof(bool),
+		// 	typeof(bool),
 
-		}, null);		
+		// }, null);		
 
-        public static PresentationChoreographyActionParameters PawnActionTriggerHitParameters2(bool isFrontHit, bool needsProtection, PresentationPawn striker, bool skipIfProtecting = false, bool isFromCharge = false)
-		{
-			return (PresentationChoreographyActionParameters)R.PawnActionTriggerHitParameters_Class_Method.Invoke(null, new object[]
-			{				
-				isFrontHit,
-				needsProtection,
-				striker,
-				skipIfProtecting,
-				isFromCharge,
-			});
-		}
+        // public static PresentationChoreographyActionParameters PawnActionTriggerHitParameters2(bool isFrontHit, bool needsProtection, PresentationPawn striker, bool skipIfProtecting = false, bool isFromCharge = false)
+		// {
+		// 	return (PresentationChoreographyActionParameters)R.PawnActionTriggerHitParameters_Class_Method.Invoke(null, new object[]
+		// 	{				
+		// 		isFrontHit,
+		// 		needsProtection,
+		// 		striker,
+		// 		skipIfProtecting,
+		// 		isFromCharge,
+		// 	});
+		// }
 
 							private static MethodInfo PawnActionSetProtectionAnimationParameters_Class_Method = typeof(PawnActionSetProtectionAnimationParameters).GetMethod("PawnActionSetProtectionAnimationParameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[]
 		{
