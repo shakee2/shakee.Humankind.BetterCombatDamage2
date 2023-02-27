@@ -25,6 +25,8 @@ namespace Amplitude.Mercury.Presentation
 		private int attackersToKill;
 		private int uncompletedWaitProjectileCount;
 		private bool doReturnFire;
+		bool multiKillAttacker;
+		bool multiKillDefender;
 
 		private PresentationUnitsFightData fightData;
 
@@ -41,8 +43,11 @@ namespace Amplitude.Mercury.Presentation
 			doReturnFire = ReturnFire.doReturnFire;
 			attackerAvailablePawns = new List<PresentationPawn>(attackerUnit.Pawns);
 			defenderAvailablePawns = new List<PresentationPawn>(defenderUnit.Pawns);
+
 			attackerAttackPawns = new List<PresentationPawn>(attackerUnit.Pawns);
 			defenderAttackPawns = new List<PresentationPawn>(defenderUnit.Pawns);
+			multiKillAttacker = PresentationChoreographyController.CanPawnOnlyMultiKillRanged(attackerAvailablePawns[0]);
+			multiKillDefender = PresentationChoreographyController.CanPawnOnlyMultiKillRanged(defenderAvailablePawns[0]);
 			
 
 		}
@@ -53,17 +58,16 @@ namespace Amplitude.Mercury.Presentation
 			
 			base.StartUnitAction();		
 			Diagnostics.LogError("New Class: StartUnitAction Defender");	
-
+			
 			System.Random random = attackerUnit.Random;
 			System.Random random2 = defenderUnit.Random;
 			fightData = new PresentationUnitsFightData(attackerBattleUnit, defenderBattleUnit, new List<PawnPair>(), attackersToKill, defendersToKill, attackerAvailablePawns, defenderAvailablePawns);
 			Presentation.PresentationChoreographyController.AddFightData(attackerBattleUnit.SimulationEntityGuid, fightData);
 			AttackerBattleUnit.FightData = fightData;
 			DefenderBattleUnit.FightData = fightData;
-			Diagnostics.LogError($"{AttackerBattleUnit} vs {DefenderBattleUnit} ({attackerAttackPawns} vs {defendersToKill})");
+			Diagnostics.LogError($"{AttackerBattleUnit} vs {DefenderBattleUnit} ({attackersToKill} vs {defendersToKill})");
 			Diagnostics.LogError("Attacker/Defender Pawns: " + attackerAvailablePawns.Count + " / " + defenderAvailablePawns.Count + " | DoReturnFire: " + doReturnFire);
-			Diagnostics.LogError("Attackers/Defenders to Kill: " + attackersToKill + " / " + defendersToKill + " | FightData To Kill: " + fightData.AttackerPawnsToKillInitial +
-				" (" + fightData.AttackersToKillRemaining + ") / " + fightData.DefenderPawnsToKillInitial + " (" + fightData.DefendersToKillRemaining + ")");
+			Diagnostics.LogError("Attackers/Defenders to Kill: " + attackersToKill + " / " + defendersToKill + " | HP: " + attackerBattleUnit.GetHealthRatio() + " / " + defenderBattleUnit.GetHealthRatio());
 
 			int attackerCount = attackerAvailablePawns.Count;
 			int defenderCount = defenderAvailablePawns.Count;
@@ -75,8 +79,8 @@ namespace Amplitude.Mercury.Presentation
 			int num2 = defendersToKill;
 			int num2a = attackersToKill;
 			int totalKills = num2 + num2a;
-			bool multiKillAttacker = false;
-			bool multiKillDefender = false;
+			multiKillAttacker = false;
+			multiKillDefender = false;
 			bool defenderDies = false;
 			bool attackerDies = false;
 			multiKillAttacker = PresentationChoreographyController.CanPawnOnlyMultiKillRanged(attackerAvailablePawns[0]);
@@ -104,249 +108,238 @@ namespace Amplitude.Mercury.Presentation
 			}	
 				
 			//int count = 0;	// counter fightsequence
-			int count2 = extraRounds;  // counter extrarounds	
+			//int count2 = extraRounds;  // counter extrarounds	
+			PresentationPawn[] defTargets = new PresentationPawn[defenderCount];
+			PresentationPawn[] attTargets = new PresentationPawn[attackerCount];
+			for (int i = 0; i < Mathf.Max(defenderCount, attackerCount); i++)
+			{
+				if (i < defenderCount)
+					defTargets[i] = defenderAvailablePawns[i];
+				if (i < attackerCount)
+					attTargets[i] = attackerAvailablePawns[i];
+			}
+			int count2 = 0;
+			if (attackersToKill >= attackerCount && AttackerBattleUnit.GetHealthRatio() > 0)
+			{
+				attackersToKill = attackerCount - 1;
+			}
+			if (defendersToKill >= defenderCount && DefenderBattleUnit.GetHealthRatio() > 0)
+			{
+				defendersToKill = defenderCount - 1;
+			}
 
+			//---------------
 			if (multiKillAttacker)
 			{
 				if (num2 > 0)
 					defenderDies = true;
 				else
-					defenderDies = false;
-
-				array[0] = new PawnRangedFightSequence(attackerAttackPawns[0], defenderUnit, defenderDies, false);				
-				if (doReturnFire && multiKillDefender)
+					defenderDies = false;		
+				bool defenderFirst = false;
+					if (num2 >= defenderCount)
+					{
+						defenderFirst = true;
+					}				
+				if (doReturnFire)
 				{			
 					if (num2a > 0)
 						attackerDies = true;
 					else
-						attackerDies = false;
-	
-					arrayDefender[0] = new PawnRangedFightSequence(defenderAttackPawns[0], attackerUnit, attackerDies, false);
-
-					if (num2 > 0)
+						attackerDies = false;	
+					
+					if (multiKillDefender)
 					{
-						Diagnostics.LogError("Add Pawns = num > 0 | Multikill: " + multiKillAttacker + " / " + multiKillDefender);
-						AddPawnRangedFightSequence(arrayDefender[0], 0, 0, true);
-						AddPawnRangedFightSequence(array[0], 0, 0);						
+						arrayDefender[0] = new PawnRangedFightSequence(defenderAttackPawns[0], attackerUnit, attackerDies, true);
 					}
 					else
 					{
-						Diagnostics.LogError("Add Pawns = num <= 0 | Multikill: " + multiKillAttacker + " / " + multiKillDefender);
-						AddPawnRangedFightSequence(array[0], 0, 0);
-						AddPawnRangedFightSequence(arrayDefender[0], 0 , 0, true);							
-					}										
-					if (num2a > 0)
-					{
-						num2a = 0;						
-					}
-				}
-				else if (doReturnFire)
-				{	
-					_ = arrayDefender;
-					arrayDefender = new PawnRangedFightSequence[defenderAvailablePawns.Count];
-					PresentationPawn[] targets = new PresentationPawn[attackerAvailablePawns.Count];
-					for (int i = 0; i < targets.Length; i++)
-					{
-						if (i < attackerCount)
-							targets[i] = attackerAvailablePawns[attackerCount - 1 - i];
-						else
-							targets[i] = attackerAvailablePawns[random.Next(0, attackerCount)];
-					}
-					for (int i = 0; i < defenderAvailablePawns.Count; i++)
-					{
-						bool delay = i != 0;
-						attackerDies = false;
-						if (num2a > 0)
+						for (int i = 0; i < defenderCount; i++)
 						{
-							attackerDies = true;
-							arrayDefender[i] = new PawnRangedFightSequence(defenderAvailablePawns[i], targets[0], attackerDies, delay, false, 0f);	
+							bool delay = i != 0;
+							bool miss = num2a <= 0;
+							arrayDefender[i] = new PawnRangedFightSequence(defenderAttackPawns[i], attTargets, attackerDies, delay, miss, 0f);
 							num2a--;
-						}
-						else
-						{
-							attackerDies = false;
-							arrayDefender[i] = new PawnRangedFightSequence(defenderAvailablePawns[i], targets[0], attackerDies, delay, true, 0.5f);	
-						}
-						
-						
-					}
+							if (num2a <= 0)
+								attackerDies = false;
+						}						
+					}				
+					
+					array[0] = new PawnRangedFightSequence(attackerAttackPawns[0], defenderUnit, defenderDies, true);
+					
+					for (int i = 0; i < arrayDefender.Length; i++)
+					{
+						AddPawnRangedFightSequence(arrayDefender[i], i, (1 + i)*10, true);	
+					}								
+					AddPawnRangedFightSequence(array[0], 50, 0);	
+				}				
+				else
+				{			
+					array[count2] = new PawnRangedFightSequence(attackerAttackPawns[0], defenderUnit, defenderDies, true);		
+					Diagnostics.LogError("Add Pawns only Attacker | Multikill: " + multiKillAttacker + " / " + multiKillDefender);
+					AddPawnRangedFightSequence(array[0], 0, 0);
 					if (num2 > 0)
 					{
-						Diagnostics.LogError("Add Pawn MultiAttacker");
-						AddPawnRangedFightSequence(array[0], 0, 0);
-						for (int k = 0; k < arrayDefender.Length; k++)
-						{
-							Diagnostics.LogError("Add Pawns Defender = num > 0 | Multikill: " + multiKillAttacker + " / " + multiKillDefender);
-							AddPawnRangedFightSequence(arrayDefender[k], 0, 0, true);
-						}
-						
-					}
-					else
-					{		
-						Diagnostics.LogError("Add Pawn MultiAttacker");
-						AddPawnRangedFightSequence(array[0], 0, 0);						
-						for (int k = 0; k < arrayDefender.Length; k++)
-						{
-							Diagnostics.LogError("Add Pawns = num <= 0 | Multikill: " + multiKillAttacker + " / " + multiKillDefender);
-							AddPawnRangedFightSequence(arrayDefender[k], 0, 0, true);
-						}
-						
+						num2 = 0;
 					}
 				}
-				else
-				{
-					Diagnostics.LogError("Add Pawns only Attacker | Multikill: " + multiKillAttacker + " / " + multiKillDefender);
-					AddPawnRangedFightSequence(array[0], 10, 10);
-				}
-				if (num2 > 0)
-				{
-					num2 = 0;
-				}
+				
 				
 			}
 			else
-			{	int count = num2;
-				for (int i = 0; i < attackerCount; i++)
-				{
-					bool delay = i != 0;
-					if (count > 0)
-					{
-						defenderDies = true;
-					}						
-					else
-					{
-						defenderDies = false;
-					}
-					if (i < count)						
-						array[i] = new PawnRangedFightSequence(attackerAttackPawns[i], defenderAvailablePawns[i], defenderDies, delay, false, 0f);	
-					else
-					{
-						array[i] = new PawnRangedFightSequence(attackerAttackPawns[i], defenderAvailablePawns[random2.Next(0, count)], defenderDies, delay, true, 0.5f);	
-					}			
-					if (count > 0)
-					{
-						count--;;						
-					}
+			{	
+				int count = num2;
+				bool repeatAttackAttacker = false;
+				if (attackerCount < num2)
+					repeatAttackAttacker = true;	
 
-				}
-				if (multiKillDefender && doReturnFire)
+				if (attackerCount > defenderCount)
 				{
-					if (attackersToKill > 0)
-						attackerDies = true;
-					else 
-						attackerDies = false;
-					arrayDefender[0] = new PawnRangedFightSequence(defenderAttackPawns[0], attackerUnit, attackerDies, false);				
-					if (num2a > 0)
-					{
-						num2a = 0;
-					}
-					if (num2a >= 0)
-					{
-						//attackerAvailablePawns.RemoveRange(0, attackersToKill);
-						for (int i = 0; i < array.Length; i++)
-						{			
-							Diagnostics.LogError("Add Pawns Attacker: num2a > 0 | Multikill: " + multiKillAttacker + " / " + multiKillDefender);
-							AddPawnRangedFightSequence(array[i], i + 1, (i + 1));
-						}	
-						AddPawnRangedFightSequence(arrayDefender[0], 100, 100, true);
-					}
-					else
-					{
-						AddPawnRangedFightSequence(arrayDefender[0], 1, 1, true);
-						for (int i = 0; i < array.Length; i++)
-						{				
-							Diagnostics.LogError("Add Pawns Attacker: num2a <= 0 | Multikill: " + multiKillAttacker + " / " + multiKillDefender);
-							AddPawnRangedFightSequence(array[i], i + 1, (i + 1) * 100);
-						}							
-					}
-
-				}
-				else if (doReturnFire)
-				{
-										
-					for (int i = 0; i < defenderCount; i++)
+					array = new PawnRangedFightSequence[defenderCount]; 
+					for (int i = 0; i < array.Length; i++)
 					{
 						bool delay = i != 0;
-						PresentationPawn targets = attackerAvailablePawns[attackerAvailablePawns.Count - i - 1];
-						attackerDies = false;
-						if (i < attackerCount)
-						{
-							if (num2a > 0)
-							{
-								attackerDies = true;
-								arrayDefender[i] = new PawnRangedFightSequence(defenderAttackPawns[i], targets, attackerDies, delay, false, 0f);	
-								num2a--;
-							}
-							else
-							{
-								attackerDies = false;
-								arrayDefender[i] = new PawnRangedFightSequence(defenderAttackPawns[i], targets, attackerDies, delay, true, 0f);	
-							}						
-						}
+						if (num2a > 0)
+							attackerDies = true;
 						else
-						{
-							targets = attackerAvailablePawns[random.Next(0, attackerCount)];
-							if (num2a > 0)
-							{
-								attackerDies = true;
-								arrayDefender[i] = new PawnRangedFightSequence(defenderAttackPawns[i], targets, attackerDies, delay, false, 0f);	
-								num2a--;
-							}
-							else
-							{
-								attackerDies = false;
-								arrayDefender[i] = new PawnRangedFightSequence(defenderAttackPawns[i], targets, attackerDies, delay, true, 0f);	
-							}			
-						}
-						
-						
+							attackerDies = false;
+
+						arrayDefender[i] = new PawnRangedFightSequence(attackerAttackPawns[i], defenderAvailablePawns[defenderAvailablePawns.Count - 1], defenderDies, delay, false, 0f);
+						defenderAvailablePawns.RemoveAt(defenderAvailablePawns.Count - 1);
+						num2--;
 					}
-					while (num2a > 0)
+				}
+				else 
+				{
+					array = new PawnRangedFightSequence[attackerAvailablePawns.Count];
+					for (int i = 0; i < array.Length; i++)
 					{
-						for (int k = 0; k < defenderCount; k++)
+						if (num2 > 0)
+							defenderDies = true;
+						else
+							defenderDies = false;	
+						bool delay = i != 0;
+						bool miss = num2 <= 0;
+						array[i] = new PawnRangedFightSequence(attackerAttackPawns[i], defTargets[defTargets.GetUpperBound(0)], defenderDies, delay, miss, 0f);
+						num2--;
+						attTargets.RemoveAt(attTargets.GetUpperBound(0));							
+					}
+				}	
+				if (repeatAttackAttacker)
+				{
+					while (num2 > 0)
+					{
+						for (int j = 0; j < array.Length; j++)
 						{
-							PawnRangedFightSequence obj = arrayDefender[k];
-							PresentationPawn shooter = obj.Shooter;
-							PresentationPawn[] array2 = new PresentationPawn[Mathf.Min(0, num2a)];
-							PawnRangedFightSequence finalSequence = obj.GetFinalSequence();
-							new PawnRangedFightSequence(shooter, array2, dies: true, finalSequence);
-							for (int l = 0; l < num2a; l++)
+							PawnRangedFightSequence obj = array[j];
+							PawnRangedFightSequence sequence = obj.GetFinalSequence();
+							PresentationPawn[] target = new PresentationPawn[1];
+							target[0] = defTargets[defTargets.GetUpperBound(0)];
+							defTargets.RemoveAt(defTargets.GetUpperBound(0));
+							new PawnRangedFightSequence(array[j].Shooter, target, defenderDies, sequence);
+							num2--;
+							if (num2 == 0)
 							{
-								PresentationPawn item = (array2[l] = PawnHelper.GetNearestPawn(shooter, attackerAvailablePawns));
-								attackerAvailablePawns.Remove(item);
-								num2a--;
-							}
-							if (num2a == 0)
-							{
+								defenderDies = false;
 								break;
-							}
+							}										
 						}
 					}
+				}				
+				if (doReturnFire)
+				{
+					arrayDefender = new PawnRangedFightSequence[defenderAvailablePawns.Count];
+					if (num2a > 0)
+						attackerDies = true;
+					else
+						attackerDies = false;	
 					
-					if (num2a >= attackerCount)
-					{		
-						Diagnostics.LogError("Add Pawns Attacker -> Defender | Multikill: " + multiKillAttacker + " / " + multiKillDefender);				
-						for (int i = 0; i < array.Length; i++)
-						{	
-							AddPawnRangedFightSequence(array[i], i + 1, (i + 1) * 50);
-						}	
-						for (int i = 0; i < arrayDefender.Length; i++)
-						{		
-							AddPawnRangedFightSequence(arrayDefender[i], i, i, true);
+					if (multiKillDefender)
+					{	
+						if (num2a > 0)
+						{
+							PresentationPawn[] array2 = new PresentationPawn[num2a];
+							for (int i = 0; i < array2.Length; i++)
+							{
+								PresentationPawn item = attackerAvailablePawns[attackerAvailablePawns.Count - 1];
+								array2[i] = item;
+								attackerAvailablePawns.Remove(item);
+							}
+							arrayDefender[0] = new PawnRangedFightSequence(defenderAttackPawns[0], array2, attackerDies, true, false, 0f);
 						}
+						else 
+						{
+							arrayDefender[0] = new PawnRangedFightSequence(defenderAttackPawns[0], attackerUnit, false, false);
+						}					
+						
 					}
 					else
-					{		
-						Diagnostics.LogError("Add Pawns Defender -> Attacker | Multikill: " + multiKillAttacker + " / " + multiKillDefender);							
-						for (int i = 0; i < arrayDefender.Length; i++)
-						{			
-							AddPawnRangedFightSequence(arrayDefender[i], i, i, true);
+					{
+						bool repeatAttackDefender = false;
+						if (defenderCount < num2a)
+							repeatAttackDefender = true;
+						if (defenderCount > attackerCount)
+						{
+							arrayDefender = new PawnRangedFightSequence[attackerCount]; 
+							for (int i = 0; i < attackerCount; i++)
+							{
+								if (num2a > 0)
+									attackerDies = true;
+								else
+									attackerDies = false;	
+								bool delay = i != 0;
+								bool miss = num2a <= 0;
+								arrayDefender[i] = new PawnRangedFightSequence(defenderAttackPawns[i], attackerAvailablePawns[attackerAvailablePawns.Count - 1], attackerDies, delay, miss, 0f);
+								attackerAvailablePawns.RemoveAt(attackerAvailablePawns.Count - 1);
+								num2a--;
+							}
 						}
-						for (int i = 0; i < array.Length; i++)
-						{				
-							AddPawnRangedFightSequence(array[i], i + 1, (i + 1) * 50);
-						}	
+						else 
+						{
+							arrayDefender = new PawnRangedFightSequence[defenderAvailablePawns.Count];
+							for (int i = 0; i < defenderCount; i++)
+							{
+								if (num2a > 0)
+									attackerDies = true;
+								else
+									attackerDies = false;	
+								bool delay = i != 0;
+								bool miss = num2a <= 0;
+								arrayDefender[i] = new PawnRangedFightSequence(defenderAttackPawns[i], attTargets[attTargets.GetUpperBound(0)], attackerDies, delay, miss, 0f);
+								num2a--;
+								attTargets.RemoveAt(attTargets.GetUpperBound(0));							
+							}
+						}						
+						if (repeatAttackDefender)
+						{
+							while (num2a > 0)
+							{
+								for (int j = 0; j < arrayDefender.Length; j++)
+								{
+									PawnRangedFightSequence obj = arrayDefender[j];
+									PawnRangedFightSequence sequence = obj.GetFinalSequence();
+									PresentationPawn[] target = new PresentationPawn[1];
+									target[0] = attTargets[attTargets.GetUpperBound(0)];
+									attTargets.RemoveAt(attTargets.GetUpperBound(0));
+									new PawnRangedFightSequence(arrayDefender[j].Shooter, target, attackerDies, sequence);
+									num2a--;
+									if (num2a == 0)
+									{
+										attackerDies = false;
+										break;
+									}										
+								}
+							}
+						}						
+					}			
+					for (int i = 0; i < arrayDefender.Length; i++)
+					{
+						AddPawnRangedFightSequence(arrayDefender[i], (i) * 2, (1 + i));	
 					}
+					for (int i = 0; i < array.Length; i++)
+					{
+						AddPawnRangedFightSequence(array[i], i + 100, i);
+					}									
+					
 				}
 				else
 				{
@@ -365,7 +358,7 @@ namespace Amplitude.Mercury.Presentation
 
 		public void AddPawnRangedFightSequence(PawnRangedFightSequence fightSequence, int attackerActionGroup, int defenderActionGroup, PawnActionRangedStartAttack rangedAttackAction, int attackLoopIndex, bool defendersTurn = false)
 		{
-			Console.WriteLine("Trigger AddPawnRanged_Long");
+			Diagnostics.LogError("Trigger AddPawnRanged_Long: " + fightSequence.Shooter);
 			PresentationPawn shooter = fightSequence.Shooter;
 			PresentationPawn[] targets = fightSequence.Targets;
 			int num = ((targets != null) ? targets.Length : 0);
@@ -454,7 +447,7 @@ namespace Amplitude.Mercury.Presentation
 							CreateKillAction(shooter, nearestPawnTo, num3);
 							defenderAvailablePawns.Remove(nearestPawnTo);
 							StartPawnActions(num3);
-						}						
+						}					
 					}
 
 				}
@@ -467,12 +460,13 @@ namespace Amplitude.Mercury.Presentation
 				{
 					count = defenderAvailablePawns.Count;
 				}
+				int redo;
 				if (defendersTurn)
 				{
 					for (int k = 0; k < count; k++)
 					{
 						PresentationPawn defender = attackerAvailablePawns[k];
-						int num4 = defenderActionGroup + attackersToKill + k;
+						int num4 = attackerActionGroup + attackersToKill + k;
 						CreateWaitProjectileAction(shooter, rangedAttackAction, 0, isNewRangedAttackAction: false, num4, fightSequence.Miss);
 						CreateHitActions(shooter, defender, num4);
 						CreateDefenderPostFightAction(shooter, defender, num4);
@@ -492,11 +486,12 @@ namespace Amplitude.Mercury.Presentation
 						StartPawnActions(num4);
 					}
 					defenderAvailablePawns.Clear();
-				}				
+				}
+							
 			}
 			if (fightSequence.NextSequence == null)
 			{
-				CreatePawnAction<PawnActionWaitIdle>(shooter, ActionScope.Attacker, blockingAction: true, attackerActionGroup).SetPawnActionParameters(new PawnActionWaitIdleParameters(shooter.FighterSubPawns, shooter.FighterSubPawnsCount));
+				CreatePawnAction<PawnActionWaitIdle>(shooter, ActionScope.Attacker, blockingAction: false, attackerActionGroup).SetPawnActionParameters(new PawnActionWaitIdleParameters(shooter.FighterSubPawns, shooter.FighterSubPawnsCount));
 				CreatePawnAction<PawnActionRangedPostFight>(shooter, ActionScope.Attacker, blockingAction: false, attackerActionGroup);
 			}
 			StartPawnActions(attackerActionGroup);
@@ -504,6 +499,8 @@ namespace Amplitude.Mercury.Presentation
 			{
 				StartPawnActions(defenderActionGroup);
 			}
+			
+
 		}
 
 		public void AddPawnRangedFightSequence(PawnRangedFightSequence fightSequence, int attackerActionGroup, int defenderActionGroup, bool defendersTurn = false)

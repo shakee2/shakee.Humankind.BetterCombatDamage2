@@ -11,7 +11,7 @@ using HumankindModTool;
 namespace shakee.Humankind.BetterCombatDamage
 {
 
-    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.3")]
+    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.4")]
     public class BetterCombatDamage : BaseUnityPlugin
     {
         const string PLUGIN_GUID = "shakee.Humankind.BetterCombatDamage";
@@ -138,7 +138,7 @@ namespace shakee.Humankind.BetterCombatDamage
                     multi = 1f;
                 }
                 
-                FixedPoint modAttack = FixedPoint.Round(FixedPoint.Clamp(baseAttack + (attackerStrength - defenderStrength) * multi, 0, 100) + FixedPoint.Clamp(attackerStrength - defenderStrength - 10, 0, 100) * 2);
+                FixedPoint modAttack = FixedPoint.Ceiling(FixedPoint.Clamp(baseAttack + (attackerStrength - defenderStrength) * multi, 0, 100) + FixedPoint.Clamp(attackerStrength - defenderStrength - 10, 0, 100) * 2);
                 //FixedPoint modAttack = FixedPoint.Clamp(baseAttack * (1 + 0.05f * (attackerStrength - defenderStrength)) * multi, 0, 100) + FixedPoint.Clamp(attackerStrength - defenderStrength - 10, 0, 100) * 2;
                 __result.MinimumDamage = FixedPoint.Clamp(modAttack - 5, 0, 100);
                 __result.MaximumDamage = FixedPoint.Clamp(modAttack + 5, 5, 100);

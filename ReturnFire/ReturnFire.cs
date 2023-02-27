@@ -44,7 +44,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			bool inRange = target.Unit.GetPropertyValue("AttackRange") >= target.GetBattlePosition2(layer).GetDistance2(attacker.GetBattlePosition2(layer));
 			bool targetable = isVisible && (BattleAttackFailureFlags.None == flags || target.Unit.IsIgnoreLineOfSight2());
 			bool cannotRetaliate = target.HasDescriptor2(new StaticString("Tag_Unit_CannotReturnFire"));			
-			bool canReturnFire = inRange && targetable && bothRanged && ReturnFireSetting;
+			bool canReturnFire = inRange && targetable && bothRanged && ReturnFireSetting && !cannotRetaliate;
 
 			// Console.WriteLine("Return Fire: " + canReturnFire.ToString() + " | LOS: " + targetable.ToString() + " | Visible: " + isVisible.ToString());		
 
@@ -54,7 +54,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			target.SetIsInvincible2(isInvincible: true, layer);
 
 			R.SendBattleEvent(__instance, BattleEventType.PreAttack, attacker, target, layer);
-			bool flag2 = !cannotRetaliate || target.CanRetaliate2(layer);
+			bool flag2 = target.CanRetaliate2(layer);
 			PresentationChoreographyController_Patch.rangedRetaliate = flag2 && (canReturnFire || !flagAttacker);
 
 			if (flag2 && (canReturnFire || !flagAttacker))
@@ -136,7 +136,9 @@ namespace shakee.Humankind.BetterCombatDamage
         [HarmonyPrefix]
         [HarmonyPatch("CreateActionsForRangedFightSequence")]
         public static bool CreateActionsForRangedFightSequence(ref PresentationChoreographyController __instance, ref FightSequence fightSequence)
-		{			
+		{		
+			List<PresentationPawn> defenderAvailablePawns = new List<PresentationPawn>(fightSequence.DefenderBattleUnit.PresentationUnit.Pawns);	
+			bool defenderDies = defenderAvailablePawns.Count <= fightSequence.DefenderPawnsToKill;
 			if (HumankindModTool.GameOptionHelper.CheckGameOption(BetterCombatDamage.ReturnFire,"true"))
 			{
 				Console.WriteLine("Pawn Ranged Combat");
@@ -146,7 +148,7 @@ namespace shakee.Humankind.BetterCombatDamage
 					PresentationUnit presentationUnit = fightSequence.AttackerBattleUnit.PresentationUnit;
 					PresentationUnit presentationUnit2 = fightSequence.DefenderBattleUnit.PresentationUnit;
 					fightSequence.DefenderBattleUnit.FilterFighterSubPawns(ChoreographyCompatibilityFlag.Ranged);
-					fightSequence.AttackerBattleUnit.FilterFighterSubPawns(ChoreographyCompatibilityFlag.Ranged);				
+					fightSequence.AttackerBattleUnit.FilterFighterSubPawns(ChoreographyCompatibilityFlag.Ranged);
 					Console.WriteLine("Defender & Attacker are Ranged");
 					if (!BattleDebug.UseHealthRatio && fightSequence.AttackerPawnsToKill != 0)
 					{
@@ -155,8 +157,11 @@ namespace shakee.Humankind.BetterCombatDamage
 					
 					_ = fightSequence.DefenderBattleUnit.PresentationUnit;
 					__instance.CreateAction<UnitActionWaitForPawnsAvailability>(ref fightSequence, ActionScope.Both);
+
+					__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Both);
+					
 					__instance.CreateAction<UnitActionPrepareRangedChoreography>(ref fightSequence, ActionScope.Both);
-					__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Attacker);
+					//__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Attacker);
 					//__instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
 					__instance.CreateAction<UnitActionRangedPostFightSequence>(ref fightSequence, ActionScope.None);
 					return false;
