@@ -141,7 +141,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			bool defenderDies = defenderAvailablePawns.Count <= fightSequence.DefenderPawnsToKill;
 			if (HumankindModTool.GameOptionHelper.CheckGameOption(BetterCombatDamage.ReturnFire,"true"))
 			{
-				Console.WriteLine("Pawn Ranged Combat");
+				
 				if (fightSequence.AttackerBattleUnit.IsRangedUnit())
 				{
 					
@@ -160,7 +160,7 @@ namespace shakee.Humankind.BetterCombatDamage
 
 					__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Both);
 					
-					__instance.CreateAction<UnitActionPrepareRangedChoreography>(ref fightSequence, ActionScope.Both);
+					__instance.CreateAction<UnitActionPrepareRangedChoreography>(ref fightSequence, ActionScope.Attacker);
 					//__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Attacker);
 					//__instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
 					__instance.CreateAction<UnitActionRangedPostFightSequence>(ref fightSequence, ActionScope.None);
