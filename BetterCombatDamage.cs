@@ -1,17 +1,19 @@
 using System;
+using System.Reflection;
 using BepInEx;
 using HarmonyLib;
 using Amplitude;
 using Amplitude.Framework.Options;
 using Amplitude.Mercury.Simulation;
 using Amplitude.Mercury.Data.GameOptions;
+using Amplitude.Mercury.Data.Simulation;
 using HumankindModTool;
 
 
 namespace shakee.Humankind.BetterCombatDamage
 {
 
-    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.5")]
+    [BepInPlugin(PLUGIN_GUID, "Better Combat Damage", "2.0.6")]
     public class BetterCombatDamage : BaseUnityPlugin
     {
         const string PLUGIN_GUID = "shakee.Humankind.BetterCombatDamage";
@@ -109,14 +111,18 @@ namespace shakee.Humankind.BetterCombatDamage
 		}
 	}
 
-//Add Harmony patches here
+    //Add Harmony patches here
 
     //This tells Harmony which class you are patching
     [HarmonyPatch(typeof(BattleAbilityHelper))]
+    [HarmonyPatch]
+
     public class BattleAbilityHelper_Patch
     {
+
         [HarmonyPrefix]
-        [HarmonyPatch("GetDamages")]
+        [HarmonyPatch(nameof(GetDamages))]
+        
         public static bool GetDamages(ref Damage __result, FixedPoint attackerStrength, FixedPoint defenderStrength)    
         {
             int damageType = int.Parse(GameOptionHelper.GetGameOption(BetterCombatDamage.CombatDamageType));
@@ -165,8 +171,5 @@ namespace shakee.Humankind.BetterCombatDamage
                 return true;            
             
         }        
-    };
-
-    
-            
+    }; 
 }

@@ -31,7 +31,7 @@ namespace shakee.Humankind.BetterCombatDamage
 		public static bool doReturnFire = false;
 
         [HarmonyPrefix]
-        [HarmonyPatch("Attack_UnitPart")]
+        [HarmonyPatch(nameof(Attack_UnitPart))]
         public static bool Attack_UnitPart(Battle __instance, ref BattleUnit attacker, ref BattleUnit target, int layer)
 		{
 			
@@ -53,7 +53,7 @@ namespace shakee.Humankind.BetterCombatDamage
 			attacker.SetIsInvincible2(isInvincible: true, layer);
 			target.SetIsInvincible2(isInvincible: true, layer);
 
-			R.SendBattleEvent(__instance, BattleEventType.PreAttack, attacker, target, layer);
+			
 			bool flag2 = target.CanRetaliate2(layer);
 			PresentationChoreographyController_Patch.rangedRetaliate = flag2 && (canReturnFire || !flagAttacker);
 
@@ -62,35 +62,55 @@ namespace shakee.Humankind.BetterCombatDamage
 			else
 				doReturnFire = false;
 
-			if (flag2 && (canReturnFire || !flagAttacker))
+			R.SendBattleEvent(__instance, BattleEventType.PreAttack, attacker, target, layer);
+			if (doReturnFire)
 			{				
 				R.SendBattleEvent(__instance, BattleEventType.PreRetaliate, target, attacker, layer);
 			}
 			if (layer == 1)
 			{
 				__instance.ForecastCombatStrengthModifiers(attacker, target);
+			}			
+			//GameEffect_BattleAction_TileFortified
+			if (target.HasDescriptor2(new StaticString("GameEffect_BattleAction_TileFortified")))
+			{
+				Console.WriteLine("Unit has GameEffect_BattleAction_TileFortified");
+			}				
+			else
+			{
+				Console.WriteLine("Unit has NOT GameEffect_BattleAction_TileFortified");
 			}
 			R.SendBattleEvent(__instance, BattleEventType.Attack, attacker, target, layer);
-			if (flag2 && (canReturnFire || !flagAttacker))
+			attacker.SetIsInvincible2(isInvincible: false, layer);
+			R.SendBattleEvent(__instance, BattleEventType.PostAttack, attacker, target, layer);
+			if (target.HasDescriptor2(new StaticString("GameEffect_BattleAction_TileFortified")))
+			{
+				Console.WriteLine("Unit has GameEffect_BattleAction_TileFortified");
+			}				
+			else
+			{
+				Console.WriteLine("Unit has NOT GameEffect_BattleAction_TileFortified");
+			}
+			if (doReturnFire)
 			{
 				R.SendBattleEvent(__instance, BattleEventType.Retaliate, target, attacker, layer);
 			}
 			if (layer == 0 && BattleDebug.UseHealthRatio)
 			{
-				if (flag2 && (canReturnFire || !flagAttacker))
+				if (doReturnFire)
 				{
 					attacker.CombatHealthRatio((FixedPoint)BattleDebug.AttackerHealthRatio);
 				}
 				target.CombatHealthRatio((FixedPoint)BattleDebug.DefenderHealthRatio);
 			}
-			attacker.SetIsInvincible2(isInvincible: false, layer);
+			
 			target.SetIsInvincible2(isInvincible: false, layer);
 			if (!attacker.IsInvincible)
 				Console.WriteLine("Attack UnitPart");
 			value -= attacker.Unit.GetPropertyValue("HealthRatio");
 			value2 -= target.Unit.GetPropertyValue("HealthRatio");
-			R.SendBattleEvent(__instance, BattleEventType.PostAttack, attacker, target, layer);
-			if (flag2 && (canReturnFire || !flagAttacker))
+			
+			if (doReturnFire)
 			{
 				R.SendBattleEvent(__instance, BattleEventType.PostRetaliate, target, attacker, layer);
 			}
@@ -160,7 +180,7 @@ namespace shakee.Humankind.BetterCombatDamage
 
 					__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Both);
 					
-					__instance.CreateAction<UnitActionPrepareRangedChoreography>(ref fightSequence, ActionScope.Attacker);
+					__instance.CreateAction<UnitActionPrepareRangedChoreography>(ref fightSequence, ActionScope.Both);
 					//__instance.CreateAction<UnitActionRangedFightSequenceDefender>(ref fightSequence, ActionScope.Attacker);
 					//__instance.CreateAction<UnitActionWaitIdle>(ref fightSequence, ActionScope.Both);
 					__instance.CreateAction<UnitActionRangedPostFightSequence>(ref fightSequence, ActionScope.None);

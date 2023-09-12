@@ -33,6 +33,10 @@
       <HintPath>..\..\References\Amplitude.EGS.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Amplitude.EGS.SDK">
+      <HintPath>..\..\References\Amplitude.EGS.SDK.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Amplitude.Framework">
       <HintPath>..\..\References\Amplitude.Framework.dll</HintPath>
       <Private>false</Private>
